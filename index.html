@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operational Model for Ansible (OMA)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700&family=Red+Hat+Text:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Red Hat brand tokens ── */
+:root{
+  --rh-red:#EE0000;
+  --rh-red-dark:#C00000;
+  --rh-black:#151515;
+  --rh-dark:#212427;
+  --rh-gray-dark:#3C3F42;
+  --rh-gray-mid:#6A6E73;
+  --rh-gray-light:#8A8D90;
+  --rh-gray-100:#F5F5F5;
+  --rh-gray-200:#D2D2D2;
+  --rh-gray-300:#B8BBBE;
+  --rh-white:#FFFFFF;
+  --rh-blue:#0066CC;
+  --rh-blue-dark:#004080;
+  --rh-blue-light:#BEE1F4;
+  --rh-gold:#F0AB00;
+  --rh-gold-light:#F9E0A2;
+  --rh-green:#3E8635;
+  --rh-green-light:#BDE5B8;
+  --rh-font-display:'Red Hat Display',sans-serif;
+  --rh-font-text:'Red Hat Text',sans-serif;
+  --rh-radius:3px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--rh-font-text);background:var(--rh-gray-100);color:var(--rh-black);font-size:14px}
+
+/* ── Header ── */
+.rh-header{background:var(--rh-black);padding:0 24px;height:48px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50;border-bottom:3px solid var(--rh-red)}
+.rh-hat{height:32px;max-width:140px;width:auto;flex-shrink:0;object-fit:contain}
+.rh-divider{width:1px;height:22px;background:var(--rh-gray-dark);flex-shrink:0}
+.rh-title{font-family:var(--rh-font-display);font-size:14px;font-weight:500;color:var(--rh-white);white-space:nowrap;letter-spacing:.01em}
+.rh-header-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.rh-header-tag{font-size:11px;color:var(--rh-gray-light);border:1px solid var(--rh-gray-dark);border-radius:var(--rh-radius);padding:1px 8px;white-space:nowrap}
+
+/* ── Content wrapper ── */
+.content{padding:16px 24px}
+
+/* ── Toolbar section ── */
+.toolbar{background:var(--rh-white);border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);padding:12px 16px;margin-bottom:12px;display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.lbl{font-family:var(--rh-font-text);font-size:11px;font-weight:500;color:var(--rh-gray-mid);white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.05em;min-width:52px}
+.sep{width:1px;height:16px;background:var(--rh-gray-200);margin:0 2px;flex-shrink:0}
+.toolbar-divider{border:none;border-top:1px solid var(--rh-gray-200);margin:2px 0}
+
+/* ── Buttons — base ── */
+button{font-family:var(--rh-font-text);font-size:12px;padding:4px 12px;border-radius:var(--rh-radius);border:1px solid var(--rh-gray-200);background:var(--rh-white);color:var(--rh-gray-dark);cursor:pointer;line-height:1.6;white-space:nowrap;transition:all .1s;font-weight:400}
+button:hover{background:var(--rh-gray-100);border-color:var(--rh-gray-light);color:var(--rh-black)}
+button.on{background:var(--rh-black);color:var(--rh-white);border-color:var(--rh-black);font-weight:500}
+/* Mode buttons */
+.done-btn.on{background:var(--rh-green);border-color:var(--rh-green);color:#fff}
+.plan-btn.on{background:#795600;border-color:#795600;color:#fff}
+.mvp-btn.on{background:#795600;border-color:#795600;color:#fff}
+.t20-btn.on{background:var(--rh-blue-dark);border-color:var(--rh-blue-dark);color:#fff}
+.adv-btn.on{background:var(--rh-red-dark);border-color:var(--rh-red-dark);color:#fff}
+/* Primary action button */
+.btn-primary{background:var(--rh-red);border-color:var(--rh-red);color:#fff;font-weight:500}
+.btn-primary:hover{background:var(--rh-red-dark);border-color:var(--rh-red-dark);color:#fff}
+/* Danger */
+.danger-btn{color:var(--rh-red-dark);border-color:var(--rh-gray-200)}
+.danger-btn:hover{background:#FFF5F5;border-color:var(--rh-red-dark);color:var(--rh-red-dark)}
+
+/* ── Legend ── */
+.lg{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:8px 16px;background:var(--rh-white);border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);margin-bottom:10px}
+.li{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--rh-gray-mid)}
+.sq{width:10px;height:10px;border-radius:1px;flex-shrink:0}
+
+/* ── Status bar ── */
+#status{font-size:12px;color:var(--rh-gray-mid);min-height:18px;margin-bottom:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:0 2px}
+.saved-ind{font-size:11px;color:var(--rh-green);opacity:0;font-weight:500}
+.saved-ind.show{opacity:1;transition:opacity .3s}
+
+/* ── Tree wrapper ── */
+.tree-wrap{overflow-x:auto;width:100%;border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);background:var(--rh-white);margin-top:8px}
+
+/* ── Panels ── */
+.panel{background:var(--rh-white);border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);margin-bottom:8px;overflow:hidden}
+.panel-head{padding:8px 16px;background:var(--rh-black);border-bottom:1px solid var(--rh-gray-dark);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.panel-head .ph-title{font-family:var(--rh-font-display);font-size:13px;font-weight:500;color:var(--rh-white);flex:1}
+.ph-btn{font-family:var(--rh-font-text);font-size:11px;padding:2px 9px;border-radius:var(--rh-radius);border:1px solid var(--rh-gray-dark);background:transparent;color:var(--rh-gray-300);cursor:pointer}
+.ph-btn:hover{background:var(--rh-gray-dark);color:var(--rh-white);border-color:var(--rh-gray-light)}
+.ph-btn.on{background:var(--rh-red);color:#fff;border-color:var(--rh-red);font-weight:500}
+.panel-body{padding:12px 16px}
+
+/* ── Summary table ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--rh-font-text)}
+thead th{padding:6px 10px;text-align:left;font-size:11px;font-weight:500;color:var(--rh-gray-mid);border-bottom:2px solid var(--rh-gray-200);white-space:nowrap;background:var(--rh-gray-100);text-transform:uppercase;letter-spacing:.04em}
+tbody tr{border-bottom:1px solid var(--rh-gray-100)}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:5px 10px;vertical-align:middle}
+tr.r-done{background:#F2FAF0} tr.r-plan{background:#FCF7E0}
+tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FEF0EE}
+.lvl-pill{font-size:10px;padding:1px 6px;border-radius:var(--rh-radius);white-space:nowrap;display:inline-block;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.lvl-mvp{background:var(--rh-gold-light);color:#795600}
+.lvl-20{background:var(--rh-blue-light);color:var(--rh-blue-dark)}
+.lvl-adv{background:#F4C5BE;color:#7D1007}
+.lvl-grp{background:var(--rh-gray-200);color:var(--rh-gray-dark)}
+.lvl-custom{background:#E8DAFF;color:#2A185A}
+.ann-done{color:var(--rh-green);font-weight:500}
+.ann-plan{color:#795600;font-weight:500}
+.ann-recl{color:var(--rh-gray-mid);font-weight:500}
+.ann-none{color:var(--rh-gray-200)}
+.no-rows{padding:20px;text-align:center;color:var(--rh-gray-light);font-size:12px}
+
+/* ── History panel ── */
+.ver-list{display:flex;flex-direction:column;gap:4px;max-height:280px;overflow-y:auto}
+.ver-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);background:var(--rh-white);font-size:12px;cursor:pointer}
+.ver-item:hover{background:var(--rh-gray-100);border-color:var(--rh-gray-light)}
+.ver-time{font-size:10px;color:var(--rh-gray-light);white-space:nowrap}
+.ver-label{flex:1;color:var(--rh-black);font-weight:500}
+.ver-meta{font-size:10px;color:var(--rh-gray-light)}
+.ver-diff{font-size:10px;padding:2px 7px;background:var(--rh-gray-100);border-radius:var(--rh-radius);border:1px solid var(--rh-gray-200);margin-left:4px;color:var(--rh-gray-mid);cursor:pointer;white-space:nowrap}
+.ver-diff:hover{background:var(--rh-gray-200);color:var(--rh-black)}
+.diff-box{margin-top:8px;padding:10px 12px;background:var(--rh-gray-100);border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);font-size:11px;color:var(--rh-gray-dark);line-height:1.8;border-left:3px solid var(--rh-gray-300)}
+.diff-add{color:var(--rh-green);font-weight:500}
+.diff-chg{color:#795600;font-weight:500}
+.diff-rem{color:var(--rh-red-dark);font-weight:500}
+.no-history{font-size:12px;color:var(--rh-gray-light);padding:8px 0}
+
+/* ── Priority panel ── */
+.pri-filters{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.pri-list{display:flex;flex-direction:column;gap:3px;max-height:380px;overflow-y:auto}
+.pri-group-head{font-size:10px;font-weight:500;color:var(--rh-gray-mid);margin:8px 0 4px;padding:0 4px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.06em}
+.pri-group-line{flex:1;height:1px;background:var(--rh-gray-200)}
+.pri-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);background:var(--rh-white);font-size:12px;cursor:grab;user-select:none}
+.pri-item:hover{background:var(--rh-gray-100);border-color:var(--rh-gray-light)}
+.pri-item.drag-over{border-color:var(--rh-blue);background:var(--rh-blue-light)}
+.pri-item.dragging{opacity:.35}
+.pri-drag{color:var(--rh-gray-200);font-size:14px;cursor:grab;flex-shrink:0}
+.pri-name{flex:1;color:var(--rh-black)}
+.pri-path{font-size:10px;color:var(--rh-gray-light)}
+.pri-ann{font-size:10px;font-weight:500;white-space:nowrap}
+.pri-ann-done{color:var(--rh-green)}
+.pri-ann-plan{color:#795600}
+.pri-ann-recl{color:var(--rh-gray-mid)}
+.no-pri{font-size:12px;color:var(--rh-gray-light);padding:8px 0;text-align:center}
+
+/* ── Add topic modal ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(21,21,21,.6);z-index:100;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--rh-white);border-radius:var(--rh-radius);padding:24px;width:400px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,.22);border-top:4px solid var(--rh-red)}
+.modal h2{font-family:var(--rh-font-display);font-size:16px;font-weight:700;color:var(--rh-black);margin-bottom:16px}
+.form-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.form-row label{font-size:11px;color:var(--rh-gray-mid);font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+.form-row input,.form-row select,.form-row textarea{font-size:13px;padding:6px 10px;border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);background:var(--rh-white);color:var(--rh-black);font-family:var(--rh-font-text);width:100%}
+.form-row textarea{height:64px;resize:vertical}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:none;border-color:var(--rh-blue);box-shadow:0 0 0 2px rgba(0,102,204,.15)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+
+/* ── Tooltip ── */
+#tooltip{position:fixed;z-index:200;width:300px;background:var(--rh-white);border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);box-shadow:0 4px 20px rgba(0,0,0,.15);padding:14px 16px;pointer-events:none;opacity:0;transition:opacity .15s;font-size:12px;border-top:3px solid var(--rh-red)}
+#tooltip.show{opacity:1}
+#tooltip h3{font-family:var(--rh-font-display);font-size:13px;font-weight:700;color:var(--rh-black);margin-bottom:6px}
+#tooltip .tt-desc{color:var(--rh-gray-dark);line-height:1.6;margin-bottom:10px}
+#tooltip .tt-ql{font-size:10px;font-weight:500;color:var(--rh-gray-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+#tooltip .tt-prompt{font-size:11px;color:var(--rh-gray-dark);line-height:1.55;padding:3px 0 3px 10px;border-left:2px solid var(--rh-red);margin-bottom:4px}
+#tooltip .tt-custom{font-size:10px;color:var(--rh-white);background:var(--rh-blue-dark);padding:2px 7px;border-radius:var(--rh-radius);display:inline-block;margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+
+/* ── Drop zone ── */
+#importInput{display:none}
+#drop-zone{display:none;border:2px dashed var(--rh-gray-200);border-radius:var(--rh-radius);padding:36px 24px;text-align:center;background:var(--rh-white);cursor:pointer;margin-bottom:12px;transition:border-color .15s,background .15s}
+#drop-zone.visible{display:block}
+#drop-zone:hover,#drop-zone.drag-active{border-color:var(--rh-red);background:#FFF5F5}
+#drop-zone .dz-icon{font-size:32px;margin-bottom:8px}
+#drop-zone .dz-title{font-family:var(--rh-font-display);font-size:15px;font-weight:700;color:var(--rh-black);margin-bottom:4px}
+#drop-zone .dz-sub{font-size:12px;color:var(--rh-gray-mid)}
+#drop-zone .dz-btn{display:inline-block;margin-top:14px;font-size:12px;padding:6px 18px;border-radius:var(--rh-radius);border:1px solid var(--rh-red);background:var(--rh-red);color:#fff;cursor:pointer;font-family:var(--rh-font-text);font-weight:500}
+#drop-zone .dz-btn:hover{background:var(--rh-red-dark);border-color:var(--rh-red-dark)}
+
+/* ── Page drop overlay ── */
+#page-drop-overlay{display:none;position:fixed;inset:0;background:rgba(21,21,21,.45);z-index:300;pointer-events:none;align-items:center;justify-content:center}
+#page-drop-overlay.show{display:flex}
+#page-drop-overlay .pdo-inner{background:var(--rh-white);border-radius:var(--rh-radius);padding:28px 44px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2);border-top:4px solid var(--rh-red)}
+#page-drop-overlay .pdo-inner p{font-family:var(--rh-font-display);font-size:16px;font-weight:700;color:var(--rh-black);margin-top:8px}
+
+.autosave-note{font-size:11px;color:var(--rh-gray-light)}
+
+@media print{
+  .rh-header,.toolbar,.rh-header,#status,.tree-wrap,#tooltip,.modal-bg{display:none!important}
+  .panel{display:block!important;border:none;break-inside:avoid}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<!-- Red Hat header -->
+<header class="rh-header">
+  <img class="rh-hat" src="logo.svg" alt="OMA logo" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='block'">
+  <span id="logo-fallback" style="display:none;font-family:var(--rh-font-display);font-size:16px;font-weight:700;color:var(--rh-white);letter-spacing:.05em">OMA</span>
+  <div class="rh-divider"></div>
+  <span class="rh-title">Operational Model for Ansible</span>
+  <div class="rh-header-right">
+    <span class="rh-header-tag">v3.0.0</span>
+    <button onclick="toggleHelp()" style="font-size:11px;padding:2px 9px;border-radius:99px;border:1px solid var(--rh-gray-dark);background:transparent;color:var(--rh-gray-300);cursor:pointer;font-family:var(--rh-font-text)" title="Show help">? Help</button>
+  </div>
+</header>
+
+<div class="content">
+
+<div class="toolbar">
+<!-- Row 1: View + Search -->
+<div class="row">
+  <span class="lbl">View:</span>
+  <button class="vbtn on" onclick="setLvl(1,this)">Pillars</button>
+  <button class="vbtn" onclick="setLvl(2,this)">Groups</button>
+  <button class="vbtn" onclick="setLvl(99,this)">All topics</button>
+  <div class="sep"></div>
+  <span class="lbl">Search:</span>
+  <input type="text" id="searchBox" placeholder="Find a topic…" oninput="onSearch(this.value)" style="font-size:12px;padding:3px 9px;border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);font-family:var(--rh-font-text);width:160px;background:#fff;color:var(--rh-black)">
+  <button id="searchClear" onclick="clearSearch()" style="display:none;font-size:11px;padding:3px 8px">✕</button>
+  <span id="searchCount" style="font-size:11px;color:var(--rh-gray-mid);display:none"></span>
+</div>
+
+<!-- Row 2: Mode -->
+<div class="row">
+  <span class="lbl">Mode:</span>
+  <button class="mbtn on" onclick="setMode('nav',this)">Navigate</button>
+  <button class="mbtn done-btn" onclick="setMode('done',this)">✓ Have this</button>
+  <button class="mbtn plan-btn" onclick="setMode('planned',this)">◑ Planned</button>
+  <div class="sep"></div>
+  <span class="lbl">Reclassify:</span>
+  <button class="mbtn mvp-btn" onclick="setMode('mvp',this)">MVP</button>
+  <button class="mbtn t20-btn" onclick="setMode('2.0',this)">2.0</button>
+  <button class="mbtn adv-btn" onclick="setMode('advanced',this)">Advanced</button>
+  <div class="sep"></div>
+  <button class="mbtn" onclick="setMode('clear',this)">✕ Clear</button>
+  <button class="danger-btn" onclick="resetAll()">Reset all</button>
+</div>
+
+<!-- Row 3: Panels -->
+<div class="row">
+  <span class="lbl">Panels:</span>
+  <button id="pbtn-summary"  onclick="togglePanel('summary',this)">Summary ▾</button>
+  <button id="pbtn-history"  onclick="togglePanel('history',this)">Version history ▾</button>
+  <button id="pbtn-priority" onclick="togglePanel('priority',this)">Prioritise ▾</button>
+  <button class="btn-primary" onclick="openAddModal()">+ Add topic</button>
+</div>
+
+<!-- Row 4: Export / Save -->
+<div class="row">
+  <span class="lbl">Export:</span>
+  <button onclick="exportCSV()">↓ CSV</button>
+  <button onclick="exportJSON()">↓ JSON</button>
+  <button id="copyBtn" onclick="copyText(this)">Copy text</button>
+  <button onclick="window.print()">Print</button>
+  <div class="sep"></div>
+  <span class="lbl">Session:</span>
+  <button class="btn-primary" onclick="saveNamedVersion()">↓ Save snapshot</button>
+  <button onclick="document.getElementById('importInput').click()">↑ Import JSON</button>
+  <input type="file" id="importInput" accept=".json" onchange="importJSON(event)">
+  <span class="autosave-note" id="autoSaveNote" title="Session is auto-saved to browser storage"></span>
+</div>
+
+</div><!-- /toolbar -->
+
+<!-- Page-level drop overlay (shown when dragging a file over the window) -->
+<div id="page-drop-overlay">
+  <div class="pdo-inner">
+    <div style="font-size:36px">📂</div>
+    <p>Drop snapshot or session JSON to load</p>
+  </div>
+</div>
+
+<!-- Drop zone (shown when no session is active) -->
+<div id="drop-zone" onclick="document.getElementById('importInput').click()">
+  <div class="dz-icon">📂</div>
+  <div class="dz-title">Continue a previous session</div>
+  <div class="dz-sub">Drop a snapshot or session JSON file here, or click to browse</div>
+  <span class="dz-btn">Browse for file</span>
+</div>
+
+<!-- Legend -->
+<div class="lg">
+  <div class="li"><div class="sq" style="background:#151515;border:1px solid #151515"></div>Root</div>
+  <div class="li"><div class="sq" style="background:#EE0000;border:1px solid #C00000"></div>Pillar</div>
+  <div class="li"><div class="sq" style="background:#3C3F42;border:1px solid #212427"></div>Group</div>
+  <div class="li"><div class="sq" style="background:#F9E0A2;border:1px solid #F0AB00"></div>MVP</div>
+  <div class="li"><div class="sq" style="background:#BEE1F4;border:1px solid #0066CC"></div>2.0</div>
+  <div class="li"><div class="sq" style="background:#F4C5BE;border:1px solid #C9190B"></div>Advanced</div>
+  <div class="li"><div class="sq" style="background:#E8DAFF;border:1px solid #6753AC"></div>Custom</div>
+  <div class="li"><div class="sq" style="background:#BDE5B8;border:1px solid #3E8635"></div>Have this</div>
+  <div class="li"><div class="sq" style="background:#FCF7E0;border:1px solid #F0AB00"></div>Planned</div>
+</div>
+
+<div id="status">
+  <span id="modeIndicator" style="font-size:11px;font-weight:500;padding:2px 9px;border-radius:var(--rh-radius);background:var(--rh-gray-200);color:var(--rh-gray-dark);white-space:nowrap;display:none"></span>
+  <span id="statusText">Select a mode then click nodes to annotate · hover a leaf for guidance</span>
+  <span style="margin-left:auto;display:flex;align-items:center;gap:8px">
+    <span class="saved-ind" id="savedInd">✓ Saved</span>
+    <span id="autoSaveTime" style="font-size:10px;color:var(--rh-gray-light)"></span>
+  </span>
+</div>
+
+<!-- Summary panel -->
+<div class="panel" id="panel-summary" style="display:none">
+  <div class="panel-head">
+    <span class="ph-title">All topics</span>
+    <button class="ph-btn on" onclick="setSumFilter('all',this)">All</button>
+    <button class="ph-btn" onclick="setSumFilter('done',this)">✓ Have this</button>
+    <button class="ph-btn" onclick="setSumFilter('planned',this)">◑ Planned</button>
+    <button class="ph-btn" onclick="setSumFilter('recl',this)">↕ Reclassified</button>
+    <button class="ph-btn" onclick="setSumFilter('none',this)">Not marked</button>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr>
+      <th style="width:90px">Status</th>
+      <th style="width:90px">Pillar</th>
+      <th style="width:120px">Group</th>
+      <th>Topic</th>
+      <th style="width:75px">Level</th>
+    </tr></thead>
+    <tbody id="sum-body"></tbody></table>
+    <div id="no-rows" class="no-rows" style="display:none">No items match this filter.</div>
+  </div>
+</div>
+
+<!-- History panel -->
+<div class="panel" id="panel-history" style="display:none">
+  <div class="panel-head">
+    <span class="ph-title">Version history</span>
+    <span style="font-size:11px;color:#aaa">Click a version to restore it · hover diff to compare</span>
+  </div>
+  <div class="panel-body">
+    <div class="ver-list" id="ver-list"></div>
+    <div class="no-history" id="no-history">No snapshots saved yet. Use "Save snapshot" to capture the current state.</div>
+    <div class="diff-box" id="diff-box" style="display:none"></div>
+  </div>
+</div>
+
+<!-- Priority panel -->
+<div class="panel" id="panel-priority" style="display:none">
+  <div class="panel-head">
+    <span class="ph-title">Prioritise</span>
+    <span style="font-size:11px;color:#aaa">Drag to reorder · items sorted by maturity level dependency by default</span>
+  </div>
+  <div class="panel-body">
+    <div class="pri-filters" id="pri-filters">
+      <button class="ph-btn on" onclick="setPriFilter('all',this)">All marked</button>
+      <button class="ph-btn" onclick="setPriFilter('done',this)">✓ Have this</button>
+      <button class="ph-btn" onclick="setPriFilter('planned',this)">◑ Planned</button>
+      <button class="ph-btn" onclick="setPriFilter('recl',this)">↕ Reclassified</button>
+    </div>
+    <div class="pri-list" id="pri-list"></div>
+    <div class="no-pri" id="no-pri" style="display:none">No annotated items match this filter. Start annotating topics in the tree above.</div>
+    <div class="row" style="margin-top:10px">
+      <button onclick="exportPriorityCSV()">↓ Export priority list</button>
+      <button onclick="copyPriorityText(this)">Copy priority list</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tree -->
+<div class="tree-wrap"><svg id="sv" style="display:block;min-width:200px"></svg></div>
+
+<!-- Help modal -->
+<div class="modal-bg" id="help-modal">
+  <div class="modal" style="width:480px;max-height:85vh;overflow-y:auto">
+    <h2>How to use the OMA Workshop Tool</h2>
+    <div style="font-size:13px;line-height:1.7;color:var(--rh-gray-dark)">
+      <p style="margin-bottom:12px">This tool helps you benchmark your organisation against the <a href="https://ansible-ops-model.gitlab.io/" target="_blank" style="color:var(--rh-blue)">Operational Model for Ansible</a> and prioritise what to work on next.</p>
+      <p style="font-weight:500;color:var(--rh-black);margin-bottom:4px">Navigating the tree</p>
+      <p style="margin-bottom:10px">Use <strong>View</strong> to set how many levels are visible. Click any node's <strong>▾ indicator</strong> to expand or collapse that branch individually. Hover over leaf nodes to see a description and discussion prompts.</p>
+      <p style="font-weight:500;color:var(--rh-black);margin-bottom:4px">Annotating topics</p>
+      <p style="margin-bottom:4px">Select a <strong>Mode</strong>, then click any node to apply it. Modes:</p>
+      <ul style="padding-left:16px;margin-bottom:10px">
+        <li><strong>Navigate</strong> — click nodes to expand/collapse (default)</li>
+        <li><strong>✓ Have this</strong> — mark topics your organisation already has in place</li>
+        <li><strong>◑ Planned</strong> — mark topics on your roadmap</li>
+        <li><strong>MVP / 2.0 / Advanced</strong> — reclassify a topic's maturity level</li>
+        <li><strong>✕ Clear</strong> — remove an annotation from a node</li>
+      </ul>
+      <p style="font-weight:500;color:var(--rh-black);margin-bottom:4px">Keyboard shortcuts</p>
+      <ul style="padding-left:16px;margin-bottom:10px">
+        <li><kbd style="background:var(--rh-gray-100);border:1px solid var(--rh-gray-200);border-radius:3px;padding:1px 5px;font-size:11px">Esc</kbd> — return to Navigate mode</li>
+        <li><kbd style="background:var(--rh-gray-100);border:1px solid var(--rh-gray-200);border-radius:3px;padding:1px 5px;font-size:11px">1</kbd> <kbd style="background:var(--rh-gray-100);border:1px solid var(--rh-gray-200);border-radius:3px;padding:1px 5px;font-size:11px">2</kbd> <kbd style="background:var(--rh-gray-100);border:1px solid var(--rh-gray-200);border-radius:3px;padding:1px 5px;font-size:11px">3</kbd> — switch to Pillars / Groups / All topics view</li>
+      </ul>
+      <p style="font-weight:500;color:var(--rh-black);margin-bottom:4px">Saving your work</p>
+      <p style="margin-bottom:10px">The tool auto-saves to your browser on every change. Use <strong>↓ Save snapshot</strong> to download a named JSON file you can share or reload later. Drag a snapshot file onto the page to restore a session.</p>
+      <p style="font-weight:500;color:var(--rh-black);margin-bottom:4px">Adding custom topics</p>
+      <p style="margin-bottom:10px">Use <strong>+ Add topic</strong> to add topics specific to your organisation. Custom topics are marked with a dashed border and ★ in exports.</p>
+      <p style="font-weight:500;color:var(--rh-black);margin-bottom:4px">About this tool</p>
+      <p>Built on the <a href="https://ansible-ops-model.gitlab.io/" target="_blank" style="color:var(--rh-blue)">OMA model</a> by the Ansible Launch Team. Source on <a href="https://github.com/ansible-ops-model/oma-workshop" target="_blank" style="color:var(--rh-blue)">GitHub</a>.</p>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-primary" onclick="closeHelp()">Got it</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add topic modal -->
+<div class="modal-bg" id="add-modal">
+  <div class="modal">
+    <h2>Add custom topic</h2>
+    <div class="form-row">
+      <label>Topic name *</label>
+      <input type="text" id="at-name" placeholder="e.g. Deprecation process">
+    </div>
+    <div class="form-row">
+      <label>Pillar *</label>
+      <select id="at-pillar" onchange="updateGroupList()">
+        <option value="">— select pillar —</option>
+        <option>People</option><option>Process</option><option>Technology</option>
+        <option>Governance</option><option>Strategy</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Group (optional)</label>
+      <select id="at-group"><option value="">— direct child of pillar —</option></select>
+    </div>
+    <div class="form-row">
+      <label>Maturity level *</label>
+      <select id="at-level">
+        <option value="">— select level —</option>
+        <option value="mvp">MVP</option>
+        <option value="2.0">2.0</option>
+        <option value="advanced">Advanced</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Description (shown on hover)</label>
+      <textarea id="at-desc" placeholder="Brief description of this topic..."></textarea>
+    </div>
+    <div class="modal-btns">
+      <button onclick="closeAddModal()">Cancel</button>
+      <button onclick="addTopic()" class="btn-primary">Add topic</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tooltip -->
+<div id="tooltip">
+  <div id="tt-custom-badge" class="tt-custom" style="display:none">Custom topic</div>
+  <h3 id="tt-title"></h3>
+  <p class="tt-desc" id="tt-desc"></p>
+  <div class="tt-ql" id="tt-ql-head" style="display:none">Discussion prompts</div>
+  <div id="tt-prompts"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+// ─── Guide data ───────────────────────────────────────────────────────────
+const GUIDE = {
+'Incident management':{desc:'A standard process for managing technical incidents — what happens when something breaks, who is responsible, and how it is resolved.',prompts:['Who is the first person called when AAP has a problem at 2am on a Sunday?','Walk me through the last significant incident — how was it handled, and what would you do differently?','If a new engineer joined tomorrow, how would they know what to do during an incident?']},
+'Life cycle management':{desc:'Communicating when the platform will be updated. At minimum, adopt the Red Hat AAP life cycle plan as your starting point.',prompts:['Does your organisation know when your current AAP version goes end-of-life?','Who gets told when a major platform upgrade is planned, and how far in advance?','What happened the last time AAP was upgraded — was it planned, or did it catch people by surprise?']},
+'Backup & recovery':{desc:'A process for performing backups and recovering from them. Life cycle management and incident management both depend on this.',prompts:['If your AAP cluster failed right now, how long would it take to restore service?','Has your backup process ever been tested by actually restoring from it?','Who is responsible for running backups? Is that manual or automated?']},
+'Upgrading':{desc:'A defined process for performing platform upgrades, including the RHEL or OpenShift upgrades that underpin AAP.',prompts:['What approval gates are required before an AAP upgrade can happen?','What is your smoke test after an upgrade completes? How do you know it was successful?','What is the rollback plan if an upgrade goes wrong halfway through?']},
+'Capacity management':{desc:'Monitoring platform capacity and acting when expansion is needed. At MVP this process is typically manual.',prompts:['How would you know today if your AAP cluster was running out of capacity?','Who decides when to add more execution nodes — and what triggers that decision?','Do you have current visibility into job queue depth or execution node load?']},
+'Disaster recovery':{desc:'A tested process for recovering from major failures — including complete loss of the platform. Essential once significant automation is running through AAP.',prompts:['If your AAP cluster was completely destroyed tonight, what would happen tomorrow morning?','Has your DR process ever been tested by a real exercise? What did you learn?','What is your recovery time objective — and does your current DR capability actually meet it?']},
+'Integration process':{desc:'A formal process for managing incoming and outgoing API integrations with AAP — typically involving some form of API management.',prompts:['How many external systems currently integrate with AAP — do you know the full list?','What happens when an integration breaks — who is notified, who owns the fix?','How do you prevent ad-hoc integrations from creating a spaghetti architecture?']},
+'Basic onboarding':{desc:'Simple, manual onboarding for new teams: creating LDAP groups, AAP organisations, git repos, and providing access to the landing page.',prompts:['Walk through your current onboarding process step by step — what does it involve?','How long does it take from a team requesting access to running their first job in AAP?','Has a team ever given up or gone around the process because onboarding took too long?']},
+'Streamlined onboarding':{desc:'Replacing manual onboarding steps with automation — reducing wait times, eliminating configuration errors, and enabling higher throughput.',prompts:['Which steps of your current onboarding are the most error-prone or time-consuming?','What is the current onboarding lead time? What would "instant" look like to a new team?','If you could automate just one step this quarter, which would have the biggest impact?']},
+'Training assessment':{desc:'When onboarding new teams, assess what type of training they need — DevOps fundamentals, Ansible specifics, or both.',prompts:['What is the biggest skill gap you observe in new automation developers?','Do you currently assess training needs before onboarding, or do you find out afterwards?','Have you ever onboarded a team that struggled badly because they lacked foundational skills?']},
+'Skills-based onboarding':{desc:'Differentiating the onboarding path for experienced versus inexperienced automation developers — accelerating time-to-value for those who need less guidance.',prompts:['Do you currently adapt your onboarding based on the experience level of the person?','Has a one-size-fits-all onboarding ever frustrated an experienced developer or overwhelmed a beginner?','What does "experienced enough for the fast track" look like in practical terms?']},
+'Documentation':{desc:'A requirement that automation is documented — what it does, how to use it, and how to maintain it.',prompts:['What percentage of automation in your environment has meaningful documentation?','Has anyone ever had to reverse-engineer automation because the original author had left?','What is the minimum documentation standard you would enforce on a merge request?']},
+'Coding standards':{desc:'A standard for how Ansible automation is written — naming, structure, linting. Ansible-lint can serve as the arbiter of acceptable code.',prompts:['Are there written standards for how Ansible should be written in your organisation?','How are standards currently enforced — through review, tooling, or just trust?','If ansible-lint was run against your entire codebase today, what would you expect to find?']},
+'Automation integration':{desc:'A process for approving new automation use cases — bringing together requestors, automation experts, and security teams to prevent blanket refusals.',prompts:['What happens when a team wants to automate something that touches another team\'s systems?','Has automation ever been blocked by a blanket "no" from security? How was it resolved?','Who has the authority to sign off that a new automation use case is acceptable?']},
+'Change management':{desc:'Ensuring the change management process supports automation — including allowing automated changes to bypass slow manual gates when testing is sufficient.',prompts:['Does your change management process allow automated changes, or does everything need human sign-off?','Has a slow change process ever killed momentum on an automation project?','What evidence would your change management team need to approve an automated change category?']},
+'CI/CD':{desc:'Automated continuous integration and delivery for Ansible automation — linting, testing, and deploying through a pipeline.',prompts:['What does your current CI/CD pipeline for Ansible look like — what stages does it have?','Who owns and maintains the CI/CD pipeline for automation?','Has a broken pipeline ever blocked a critical automation deployment?']},
+'Complete test coverage':{desc:'Every line of Ansible automation has unit, functional, and integration test coverage — high investment, high confidence.',prompts:['What would it take to have complete test coverage for all automation in your environment?','How would you introduce a complete test coverage requirement without it becoming an adoption blocker?','Which automation is most critical and most deserving of comprehensive test coverage right now?']},
+'Integrated dev platform':{desc:'A developer portal (e.g. Backstage) that guides automation developers through scaffolding, templates, and golden paths.',prompts:['What is the biggest friction point for someone starting a new automation project from scratch?','How much do your developers need to know before they can write and ship their first role?','What would "zero to running automation in 30 minutes" look like for a new developer?']},
+'Availability':{desc:'Designing the platform to meet availability requirements. Reference the Red Hat tested topologies for appropriate deployment models.',prompts:['What is your current uptime target for AAP — and is that written down anywhere?','What automation currently runs through AAP? What breaks if the platform goes down for an hour?','Is your current deployment topology appropriate for the criticality of what runs on it?']},
+'Security':{desc:'Designing the platform with security requirements in mind — OS hardening, network planning, and basic access controls.',prompts:['What security controls does your organisation require for any new platform — and have those been applied to AAP?','Has the platform been through a formal security review? What were the findings?','How is privileged access to AAP managed — who has admin rights, and how is that reviewed?']},
+'Monitoring':{desc:'Basic monitoring to ensure platform availability and security — alerts on key thresholds for job failures, resource usage, and login activity.',prompts:['What monitoring exists for AAP today, and who gets the alerts?','If AAP silently started failing jobs at 3am, how long would it be before someone noticed?','Are there metrics you wish you had visibility into that you currently do not?']},
+'Multi-cluster':{desc:'Operating multiple AAP clusters kept in sync using infra.controller_configuration — providing near-zero RTO and geographic redundancy.',prompts:['What would a complete AAP cluster failure mean for your business operations right now?','What availability requirement would justify the investment in a multi-cluster architecture?','How mature does your CasC implementation need to be before multi-cluster becomes viable?']},
+'Advanced security':{desc:'Advanced security across the entire AAP stack — highly granular RBAC, hardened infrastructure, signed artifacts, and audited access.',prompts:['What would "complete confidence in the security of our automation platform" look like to your security team?','Has the security of the automation platform ever been questioned by an audit or security review?','What would you need to implement to satisfy the most demanding security requirement in your organisation?']},
+'EDA standard source':{desc:'Standardising how Event Driven Ansible receives events — using platforms like Kafka, ITSM, SIEM, or monitoring systems as canonical event sources.',prompts:['Which systems would you standardise as event sources for EDA in your environment?','Are there competing event-driven approaches that could be consolidated onto EDA?','What volume of events would your environment generate, and can your current EDA setup handle that?']},
+'Automated operations':{desc:'Capacity management, availability, and security managed by automated workflows — no human intervention required for routine platform operations.',prompts:['Which operational tasks on your platform still require a human to log in and do something manually?','What is your confidence threshold before you trust automation to take a remediation action without a human?','What would "lights-out platform operations" mean for your team\'s working day?']},
+'Git':{desc:'Version control as the foundation of automation development. Git is the industry standard — all automation should be built around it.',prompts:['Is all automation code currently in version control? If not, where does it live?','What branching strategy do your teams use, and is it consistent across teams?','How is code reviewed before it reaches production?']},
+'Git organisation':{desc:'How automation repositories are organised in your version control system — groupings, naming conventions, access patterns.',prompts:['If I wanted to find the automation for a specific team or use case, how would I navigate your git structure?','Is there a naming convention for repositories, or did each team decide for themselves?','Has a disorganised git structure ever caused a real problem — duplication, confusion, or lost work?']},
+'Best practice repos':{desc:'Standard reference repositories that show teams how automation should be structured and documented — a golden path for new developers.',prompts:['Do you have a "gold standard" example that new automation developers are pointed to?','When someone writes their first Ansible role, what do they use as a template?','Who maintains the gold standard repo? Unowned examples go stale quickly.']},
+'IDE':{desc:'Standardising the development environment for writing Ansible — including IDE plugins for linting, syntax highlighting, and documentation. VS Code with the Red Hat Ansible extension is most common.',prompts:['What do your automation developers use to write Ansible today — is there a recommended setup?','How long does it take a new developer to get a working, properly configured development environment?','Has an IDE or editor difference ever caused a problem — a file encoding issue, a YAML indentation difference?']},
+'CI/CD platform':{desc:'A standardised CI/CD platform for building and deploying automation, with shared pipeline templates that teams can start from.',prompts:['Which CI/CD platform is standard in your organisation — and has it been configured with Ansible-specific templates?','Who maintains the shared pipeline templates — and how are they kept up to date?','What would need to change for every new project to start with a working CI pipeline by default?']},
+'Molecule testing':{desc:'Using Molecule to write and run automated tests for Ansible roles — ensuring automation is correct before deployment.',prompts:['Have any of your teams written Molecule tests? What was the experience?','If a role was changed today, how would you know whether it had broken something?','What is the most common failure mode for automation in your environment — and could a test have caught it?']},
+'EE builds':{desc:'Building custom Ansible Execution Environments with required collections and dependencies — versioned and stored in a registry.',prompts:['How do your teams manage Ansible dependencies today — do they use standard or custom EEs?','Has a dependency conflict or missing collection ever broken automation in production?','How do you ensure that the EE used in development is the same one used in production?']},
+'Security gates':{desc:'Security checks integrated into the CI/CD pipeline — code signing, EE vulnerability scanning, and artifact signing.',prompts:['What security checks currently exist in your automation development workflow?','Has automation ever introduced a security vulnerability — a hard-coded credential, an insecure module argument?','Who in your security team has visibility into what automation content is being deployed to production?']},
+'Standardised deploy.':{desc:'A consistent approach to promoting automation from development to production — using separate test and production environments, organisations, or branches.',prompts:['How does automation currently get promoted from development to production?','Has "works in dev, fails in prod" ever happened — and why?','Who approves a production deployment — and is that gate manual or automated?']},
+'Custom features':{desc:'Developing custom AAP extensions — inventory plugins, authentication plugins, custom collections — to meet specific organisational requirements not covered by defaults.',prompts:['Are there capabilities you need from AAP that do not exist out of the box?','How do you decide whether to build a custom feature versus finding a community alternative?','Who would own and maintain custom-built features — and is that sustainable?']},
+'Organisations':{desc:'Design decision: how to use AAP organisations. One team per organisation is a popular choice that simplifies RBAC and reduces blast radius.',prompts:['How is your AAP currently structured into organisations — and why?','If a team\'s automation broke, how would it be contained from affecting others?','Were the organisation design decisions documented, or are they held in people\'s heads?']},
+'Projects':{desc:'How to use projects in AAP — sync on launch, branch strategies, and how projects relate to git repositories.',prompts:['How do your teams use projects in AAP? Is there a consistent standard?','Who manages project sync settings — the platform team or each team independently?','Has a project sync failure ever impacted a production automation run?']},
+'Inventories':{desc:'How to use inventories in AAP — static vs dynamic, who creates and owns them, and naming conventions.',prompts:['How do different teams manage their inventories? Is there a standard or free-for-all?','Are inventories static or dynamic? What is the source of truth for host data?','Has an incorrect inventory ever caused automation to run against the wrong hosts?']},
+'Credentials':{desc:'How to use credentials in AAP — should everyone use a central credentials store, or can teams use locally defined credentials?',prompts:['How are credentials currently managed — centrally or per-team?','Has a credential ever been shared in a way that created a security concern?','What is your approach to rotating credentials used in automation?']},
+'Secrets':{desc:'How to hide secret information in Ansible automation — Ansible Vaults or a central secrets store such as HashiCorp Vault.',prompts:['How are secrets currently stored in your automation — Vault, a secrets manager, or something else?','Has a secret ever been accidentally committed to a git repository?','Who has access to the secrets used by automation in production?']},
+'Templates':{desc:'How to use job templates in AAP — naming conventions, standard settings, and what should be standardised across all teams.',prompts:['Is there a naming convention for job templates in your AAP — or did each team decide for themselves?','What template settings are currently inconsistent across teams?','How do users discover which templates are available to them?']},
+'RBAC':{desc:'How to configure Role Based Access Control in AAP — connecting LDAP groups to roles, minimising privilege, and making access auditable.',prompts:['How is RBAC currently configured — who did the design, and is it documented?','Does every user have only the access they need, or is over-provisioning common?','How do you handle access reviews — when someone leaves, how quickly is access removed?']},
+'Example organisation':{desc:'An AAP organisation set up to demonstrate best practices — standard naming, RBAC, project structure — that teams can reference and emulate as a golden path.',prompts:['Do you have a "show me how it should look" reference environment that teams are pointed to?','When a team is unsure how to structure something in AAP, where do they go for guidance?','Who maintains the example organisation? Unowned examples become anti-patterns.']},
+'Event Driven Ansible':{desc:'Introducing EDA — defining standards for how events are consumed and acted upon by the platform, and which systems are authorised event sources.',prompts:['Are there use cases where you want automation to respond to events rather than be triggered manually?','What events are currently happening in your environment that could trigger automated remediation?','What is the confidence threshold before you trust automation to respond without a human in the loop?']},
+'AAP as code':{desc:'Using infra.controller_configuration to define all AAP configuration as code — organisations, credentials, templates — version-controlled and peer-reviewed.',prompts:['If your AAP cluster had to be rebuilt from scratch today, how long would it take to restore all configuration?','Is any of your current AAP configuration only in the UI, with no code representation?','What would you tackle first if you were starting to implement configuration as code for AAP?']},
+'Landing page':{desc:'A starting point for new platform users — typically a wiki or internal web page with documentation, process descriptions, and useful links.',prompts:['Where does a brand-new team go on day one? Is that destination obvious and findable?','Who owns the landing page today? When was it last updated?','What questions do new users ask most often — and are the answers on the landing page?']},
+'Platform docs':{desc:'Documentation describing how the platform works — its architecture, configuration choices, and how-to guides for platform users.',prompts:['If your most experienced platform engineer left tomorrow, could someone else maintain the platform using existing docs?','What is currently not documented that probably should be?','Has incorrect or missing documentation ever caused an incident or significant delay?']},
+'Link collection':{desc:'A curated list of useful links for new platform users — Red Hat documentation, internal wikis, training resources, community pages.',prompts:['What are the five links every new AAP user should have bookmarked — and are they in one place?','Who maintains your link collection today, and how often is it reviewed?','Are there links that show up repeatedly in team chat that should be in a central collection?']},
+'FAQ':{desc:'A Frequently Asked Questions section as part of the onboarding page — capturing the most common questions and saving platform team time.',prompts:['What are the five questions you get asked most often by new platform users?','Is there a self-service way for users to find answers, or do they always ask a person?','Who updates the FAQ — and does it keep pace with platform changes?']},
+'Learning path':{desc:'A documented learning path for new platform users — how to get started, what training is available, and what to do first.',prompts:['If someone joins your organisation today as an automation developer, what is their first week supposed to look like?','Have new starters ever felt lost or unsupported in their first weeks on the platform?','What resources do your most successful automation developers wish they had had when they started?']},
+'Internal training':{desc:'Describing what internal training is available for automation developers — courses, workshops, mentoring, and self-service materials.',prompts:['What internal training currently exists for people being onboarded to the platform?','Is internal training documented and discoverable, or word-of-mouth?','Who delivers internal training — and how is that capacity managed?']},
+'External training':{desc:'Pointing people to external training resources — paid and free Red Hat training, online labs, certification paths, and relevant books.',prompts:['What external training do you currently point new developers to?','Is there budget for paid Red Hat training — and is it used?','Do you have a preferred learning path combining internal and external resources?']},
+'SLA':{desc:'Defining the SLA for the AAP platform — uptime commitments, support hours, and response times.',prompts:['What SLA does your organisation expect from internal platforms — and is AAP held to the same standard?','If AAP was down for four hours on a Tuesday afternoon, what would the business consequence be?','Is your current SLA realistic given your team size and architecture? Can you actually meet it?']},
+'OLA':{desc:'An internal agreement between the platform team and other IT teams (networking, security, storage) that defines mutual support obligations.',prompts:['Which other IT teams does AAP depend on — networking, security, storage, identity?','Has a slow response from a dependent team ever extended an AAP outage?','What would a reasonable OLA with each dependent team look like?']},
+'Feature planning':{desc:'Planning and prioritising platform capabilities across MVP, 2.0, and Advanced levels — communicating the platform roadmap to users.',prompts:['How do you currently decide what to build next on the platform?','Do platform users know what is coming? Is there a roadmap they can see?','Has a lack of feature planning ever led to wasted effort or conflicting priorities?']},
+'Success plan':{desc:'A basic plan outlining what business KPIs the platform aims to impact, and how success will be measured over time.',prompts:['How do you define success for the AAP platform — what would the business consider a win after 12 months?','If a senior leader asked you to justify the investment in AAP, what would you say?','Are there KPIs being tracked today? If not, what would you start with?']},
+'KPIs':{desc:'A document describing the KPIs that are monitored for the platform — separate from or as part of the overall success plan.',prompts:['What metrics do you currently track for the platform?','Are your KPIs connected to business outcomes, or just technical metrics?','How do you make the impact of automation visible to people outside the platform team?']},
+'Name':{desc:'Giving your platform a catchy, memorable name that people can refer to — building identity around the automation programme.',prompts:['Does your automation platform have a name — something people refer to it as beyond "AAP"?','What qualities would you want the platform\'s name to convey?','Has naming or branding helped build identity around a tool or programme in your organisation before?']},
+'Logo':{desc:'A visual identity for the platform — a logo that appears on documentation, the landing page, and merchandise.',prompts:['Does your platform have a visual identity that people recognise?','Who would be involved in designing a logo — is that within reach for your team?','What impression should the logo give to someone seeing it for the first time?']},
+'Merchandise':{desc:'Stickers, t-shirts, or digital badges that help make the platform visible and build community pride around automation.',prompts:['What kind of merchandise would actually motivate people in your organisation — not what you assume?','Do you have budget for small community recognition items?','Has merchandise or branded swag had a positive impact on adoption of anything in your organisation before?']},
+'Performance monitoring':{desc:'Measuring the business impact of automation — connecting platform KPIs to business outcomes and executive-level metrics.',prompts:['Can you currently show a leadership number that proves the business value of automation?','What business KPIs does your CIO or CTO track — and how does automation connect to them?','What would you need to track to make the case for expanding the automation programme?']},
+'Budget & ownership':{desc:'The automation strategy is owned by top leadership, backed by dedicated budget, and aligned to the organisation\'s budget cycle.',prompts:['Who currently holds the budget for AAP — strategic investment or IT cost line?','What would it take for automation to have its own dedicated budget, separate from the ops budget?','When was the last time automation was discussed at a leadership meeting — and what was the outcome?']},
+'Tools strategy':{desc:'A high-level strategy defining requirements for automation tools — setting principles without mandating specific products.',prompts:['Does your organisation have a position on which automation tools are approved — and who decides?','What would happen if a major vendor changed their licensing terms or discontinued a key product?','Are there multiple automation tools in use across different teams? Is that a problem?']},
+'Skills development':{desc:'Aligning automation investment with a broader organisational strategy for skills development — ensuring people keep pace with the platform.',prompts:['Is there a skills development strategy for automation in your organisation — and how is it funded?','Is Ansible or AAP featured in your organisation\'s learning and development catalogue?','What happens when automation developers leave — how is their knowledge retained and transferred?']},
+'Key processes':{desc:'The automation strategy sets high-level requirements for the collaborative processes needed to run and develop automation at scale.',prompts:['Which organisational processes are currently the biggest bottleneck for automation at scale?','Are the owners of those blocking processes aware of the impact they have on automation adoption?','What would you put in front of leadership as the top three process changes needed to unlock automation at scale?']},
+'Product owner':{desc:'A dedicated person responsible for planning and developing the platform — the person who owns the operational model and drives maturity.',prompts:['Who currently owns the AAP platform — and are they empowered and funded to develop it?','Is platform ownership someone\'s full-time job, or a side responsibility on top of other work?','If the platform were a commercial product, would the current ownership model be acceptable?']},
+'Platform engineers':{desc:'The people who build and maintain the platform — SREs, platform engineers, system administrators doing the technical heavy lifting.',prompts:['How many people currently work on the platform? Is that sufficient for the scale you are aiming for?','Are platform engineers spending most of their time fixing problems reactively, or building things proactively?','What would happen if your most experienced platform engineer left next month?']},
+'Architect':{desc:'A dedicated architect ensuring AAP fits the broader IT architecture and making sound technical decisions at scale.',prompts:['Who makes architectural decisions for automation in your organisation — and is that role clearly defined?','When a new team wants to integrate with AAP, who evaluates the design and signs it off?','Has a lack of architectural oversight ever led to a technical problem that was expensive to fix?']},
+'Core team':{desc:'The core team of the Community of Practice — typically the product owner and platform engineers, potentially joined by experienced community members.',prompts:['Who currently forms the core of your automation community?','Is there a clear distinction between those who lead the community and those who participate?','What responsibilities should the core team have that they do not currently own?']},
+'Members':{desc:'The broader members of the Community of Practice — people from across the organisation who are interested in automation and the platform.',prompts:['Who are the natural first members of an automation community in your organisation?','What would motivate people to join and stay active in the community?','How do you identify and reach people who would benefit from being part of the community?']},
+'Chat channel':{desc:'A dedicated chat channel where Community of Practice members can talk to each other, share knowledge, and ask questions.',prompts:['Is there currently an informal channel where automation enthusiasts talk to each other?','What would you use as the platform — Teams, Slack, Mattermost?','How do you keep a chat channel active and useful rather than just a place to post announcements?']},
+'Regular meeting':{desc:'A recurring community meeting — every other week or weekly — where people share, learn, and interact with each other.',prompts:['Is there currently any regular meeting where automation practitioners come together?','What format would work best for your organisation — demo, Q&A, guest speaker?','How do you keep the agenda fresh so attendance stays strong over time?']},
+'Service owner':{desc:'A dedicated service owner for the platform — potentially responsible for automation across the wider organisation at a business level.',prompts:['Is automation treated as a strategic service with dedicated ownership at leadership level?','Who currently represents automation in leadership conversations about IT strategy?','What decisions require leadership authority that the platform team currently cannot make alone?']},
+'Solution architects':{desc:'Dedicated automation solution architects who accelerate adoption, help teams design automation, and sometimes deliver internal training.',prompts:['Where do teams go when they need expert help designing a complex automation workflow?','How much of your platform team\'s time is reactive support versus proactive enablement of new teams?','What would an "embedded SA" model look like — an expert sitting with a team for a sprint?']},
+'Gamification':{desc:'Using gamification — digital badges, leaderboards, contribution prizes — to motivate community participation and reward meaningful contributions.',prompts:['What currently motivates people to contribute to the automation community beyond their day job?','Have you seen gamification work well in another context in your organisation — what made it work?','What behaviours would you want to incentivise, and how would you measure them?']},
+'Domain channels':{desc:'As the community grows, splitting chat channels and regular meetings by technical domain to maintain quality of conversation.',prompts:['At what size does a single community channel become too noisy to be useful?','Are there already informal sub-groups within your community organised around specific topics?','What domains would you split into first, based on where concentration of interest already is?']},
+'Contribution recognition':{desc:'Celebrating community contributions with prizes, badges, or other recognition — making contributing feel worthwhile and visible.',prompts:['What contribution recognition would actually motivate people in your organisation?','Do you have budget for small community recognition items or digital badges?','Has contribution recognition had a positive impact on community engagement anywhere in your organisation?']}
+};
+
+// ─── Palette ──────────────────────────────────────────────────────────────
+const PAL = {
+  root:     {f:'#151515',s:'#151515',t:'#FFFFFF'},
+  pillar:   {f:'#EE0000',s:'#C00000',t:'#FFFFFF'},
+  group:    {f:'#3C3F42',s:'#212427',t:'#FFFFFF'},
+  mvp:      {f:'#F9E0A2',s:'#F0AB00',t:'#795600'},
+  '2.0':    {f:'#BEE1F4',s:'#0066CC',t:'#004080'},
+  advanced: {f:'#F4C5BE',s:'#C9190B',t:'#7D1007'},
+  done:     {f:'#BDE5B8',s:'#3E8635',t:'#1E4F18'},
+  planned:  {f:'#FCF7E0',s:'#F0AB00',t:'#795600'},
+  custom:   {f:'#E8DAFF',s:'#6753AC',t:'#2A185A'}
+};
+
+// ─── Base tree data ───────────────────────────────────────────────────────
+const BASE_DATA = {name:'Ansible Automation\nPlatform',type:'root',children:[
+  {name:'People',type:'pillar',children:[
+    {name:'Product owner',level:'2.0'},{name:'Platform engineers',level:'2.0'},{name:'Architect',level:'2.0'},
+    {name:'Community of practice',type:'group',level:'2.0',children:[
+      {name:'Core team',level:'2.0'},{name:'Members',level:'2.0'},{name:'Chat channel',level:'2.0'},{name:'Regular meeting',level:'2.0'}
+    ]},
+    {name:'Service owner',level:'advanced'},{name:'Solution architects',level:'advanced'},
+    {name:'Gamification',level:'advanced'},{name:'Domain channels',level:'advanced'},{name:'Contribution recognition',level:'advanced'}
+  ]},
+  {name:'Process',type:'pillar',children:[
+    {name:'Platform operations',type:'group',children:[
+      {name:'Incident management',level:'mvp'},{name:'Life cycle management',level:'mvp'},
+      {name:'Backup & recovery',level:'mvp'},{name:'Upgrading',level:'mvp'},{name:'Capacity management',level:'mvp'},
+      {name:'Disaster recovery',level:'2.0'},{name:'Integration process',level:'advanced'}
+    ]},
+    {name:'Onboarding',type:'group',children:[
+      {name:'Basic onboarding',level:'mvp'},{name:'Streamlined onboarding',level:'2.0'},
+      {name:'Training assessment',level:'2.0'},{name:'Skills-based onboarding',level:'advanced'}
+    ]},
+    {name:'Development process',type:'group',children:[
+      {name:'Documentation',level:'2.0'},{name:'Coding standards',level:'2.0'},
+      {name:'Automation integration',level:'2.0'},{name:'Change management',level:'2.0'},{name:'CI/CD',level:'2.0'},
+      {name:'Complete test coverage',level:'advanced'},{name:'Integrated dev platform',level:'advanced'}
+    ]}
+  ]},
+  {name:'Technology',type:'pillar',children:[
+    {name:'Platform infrastructure',type:'group',children:[
+      {name:'Availability',level:'mvp'},{name:'Security',level:'mvp'},{name:'Monitoring',level:'mvp'},
+      {name:'Capacity management',level:'2.0'},{name:'Multi-cluster',level:'advanced'},
+      {name:'Advanced security',level:'advanced'},{name:'EDA standard source',level:'advanced'},{name:'Automated operations',level:'advanced'}
+    ]},
+    {name:'Developer experience',type:'group',children:[
+      {name:'Git',level:'mvp'},{name:'Git organisation',level:'mvp'},{name:'Best practice repos',level:'mvp'},
+      {name:'IDE',level:'2.0'},{name:'CI/CD platform',level:'2.0'},{name:'Molecule testing',level:'2.0'},
+      {name:'EE builds',level:'2.0'},{name:'Security gates',level:'2.0'},{name:'Standardised deploy.',level:'2.0'},
+      {name:'Custom features',level:'advanced'}
+    ]},
+    {name:'Configuration standards',type:'group',children:[
+      {name:'Organisations',level:'mvp'},{name:'Projects',level:'mvp'},{name:'Inventories',level:'mvp'},
+      {name:'Credentials',level:'mvp'},{name:'Secrets',level:'mvp'},{name:'Templates',level:'mvp'},{name:'RBAC',level:'mvp'},
+      {name:'Example organisation',level:'2.0'},{name:'Event Driven Ansible',level:'2.0'},{name:'AAP as code',level:'advanced'}
+    ]},
+    {name:'Enablement',type:'group',children:[
+      {name:'Landing page',level:'mvp'},{name:'Platform docs',level:'mvp'},{name:'Link collection',level:'mvp'},
+      {name:'FAQ',level:'2.0'},{name:'Learning path',level:'2.0'},
+      {name:'Internal training',level:'2.0'},{name:'External training',level:'2.0'}
+    ]}
+  ]},
+  {name:'Governance',type:'pillar',children:[
+    {name:'SLA',level:'mvp'},{name:'OLA',level:'mvp'},{name:'Feature planning',level:'mvp'},
+    {name:'Success plan',level:'2.0'},{name:'KPIs',level:'2.0'},
+    {name:'Brand',type:'group',level:'2.0',children:[
+      {name:'Name',level:'2.0'},{name:'Logo',level:'2.0'},{name:'Merchandise',level:'2.0'}
+    ]}
+  ]},
+  {name:'Strategy',type:'pillar',children:[
+    {name:'Performance monitoring',level:'advanced'},{name:'Budget & ownership',level:'advanced'},
+    {name:'Tools strategy',level:'advanced'},{name:'Skills development',level:'advanced'},{name:'Key processes',level:'advanced'}
+  ]}
+]};
+
+// ─── State ────────────────────────────────────────────────────────────────
+let ANN = {};           // nodePath → annotation
+let customNodes = [];   // [{name,pillar,group,level,desc}]
+let versions = [];      // [{id,label,timestamp,ann,custom}]
+let priorityOrder = []; // array of nodePaths in user-defined order
+let MODE = 'nav';
+let SUM_FILTER = 'all';
+let PRI_FILTER = 'all';
+let activePanel = null;
+
+const NW=138, NH=32, VS=74;
+const LAY = d3.tree().nodeSize([NW+14,VS]);
+const SV  = d3.select('#sv');
+const G   = SV.append('g');
+let ROOT;
+
+// ─── Group map for add-topic ──────────────────────────────────────────────
+const PILLAR_GROUPS = {
+  People:     ['Community of practice'],
+  Process:    ['Platform operations','Onboarding','Development process'],
+  Technology: ['Platform infrastructure','Developer experience','Configuration standards','Enablement'],
+  Governance: ['Brand'],
+  Strategy:   []
+};
+
+// ─── LocalStorage ─────────────────────────────────────────────────────────
+const LS_KEY = 'aap_model_state';
+function saveState() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({ANN,customNodes,versions,priorityOrder}));
+    flashSaved();
+    updateAutoSaveTime();
+  } catch(e){}
+}
+function loadState() {
+  try {
+    const s = localStorage.getItem(LS_KEY);
+    if (!s) return;
+    const p = JSON.parse(s);
+    ANN = p.ANN || {};
+    customNodes = p.customNodes || [];
+    versions = p.versions || [];
+    priorityOrder = p.priorityOrder || [];
+  } catch(e){}
+}
+function flashSaved() {
+  const el = document.getElementById('savedInd');
+  el.classList.add('show');
+  clearTimeout(flashSaved._t);
+  flashSaved._t = setTimeout(()=>el.classList.remove('show'),1800);
+}
+
+// ─── Build tree data (merging custom nodes) ───────────────────────────────
+function buildData() {
+  const data = JSON.parse(JSON.stringify(BASE_DATA));
+  customNodes.forEach(cn => {
+    const pillarNode = data.children.find(c=>c.name===cn.pillar);
+    if (!pillarNode) return;
+    const node = {name:cn.name, level:cn.level, custom:true};
+    if (cn.group) {
+      const grpNode = pillarNode.children && pillarNode.children.find(c=>c.name===cn.group&&c.type==='group');
+      if (grpNode) { grpNode.children = grpNode.children||[]; grpNode.children.push(node); return; }
+    }
+    pillarNode.children = pillarNode.children||[];
+    pillarNode.children.push(node);
+  });
+  return data;
+}
+
+function buildRoot() {
+  ROOT = d3.hierarchy(buildData());
+  eachAll(ROOT, d=>{
+    if (d.depth>=1 && d.children){ d._children=d.children; d.children=null; }
+  });
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────
+function eachAll(n,fn){
+  fn(n);
+  [...(n.children||[]),...(n._children||[])].forEach(c=>eachAll(c,fn));
+}
+function nodePath(d){
+  return d.ancestors().reverse().map(a=>a.data.name.replace(/\n/g,'')).join('|');
+}
+function getColor(d){
+  const ann=ANN[nodePath(d)];
+  if(ann==='done')return PAL.done;
+  if(ann==='planned')return PAL.planned;
+  if(ann&&PAL[ann])return PAL[ann];
+  if(d.data.custom)return PAL.custom;
+  const t=d.data.type;
+  if(t==='root')return PAL.root;
+  if(t==='pillar')return PAL.pillar;
+  if(t==='group')return PAL.group;
+  return PAL[d.data.level]||PAL.group;
+}
+function wrapName(name){
+  if(name.includes('\n'))return name.split('\n');
+  if(name.length<=19)return[name];
+  let i=name.lastIndexOf(' ',Math.ceil(name.length/2));
+  if(i<2)i=name.indexOf(' ',Math.floor(name.length/2)+1);
+  if(i<2)return[name.slice(0,18)+'…'];
+  return[name.slice(0,i),name.slice(i+1)];
+}
+function toggle(d){
+  if(d.children){d._children=d.children;d.children=null;}
+  else if(d._children){d.children=d._children;d._children=null;}
+}
+function lvlOrder(lvl){return lvl==='mvp'?0:lvl==='2.0'?1:lvl==='advanced'?2:3;}
+
+// ─── Status ───────────────────────────────────────────────────────────────
+function updateStatus(){
+  const vals=Object.values(ANN);
+  const done=vals.filter(v=>v==='done').length;
+  const plan=vals.filter(v=>v==='planned').length;
+  const recl=vals.filter(v=>v!=='done'&&v!=='planned').length;
+  const parts=[];
+  if(done)parts.push(`✓ ${done} have this`);
+  if(plan)parts.push(`◑ ${plan} planned`);
+  if(recl)parts.push(`↕ ${recl} reclassified`);
+  document.getElementById('statusText').textContent = parts.length
+    ? parts.join('  ·  ')
+    : 'Select a mode then click nodes to annotate · hover a leaf for guidance';
+}
+
+// ─── Controls ─────────────────────────────────────────────────────────────
+function setLvl(max,btn){
+  document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  eachAll(ROOT,d=>{
+    if(!d.depth)return;
+    if(d.depth<max){if(d._children){d.children=d._children;d._children=null;}}
+    else{if(d.children){d._children=d.children;d.children=null;}}
+  });
+  draw();
+}
+function setMode(m,btn){
+  MODE=m;
+  document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function resetAll(){
+  if(!confirm('Clear all annotations and reclassifications? Custom topics and version history will be kept.'))return;
+  ANN={};
+  updateStatus();
+  saveState();
+  refreshPanels();
+  draw();
+  updateDropZone();
+}
+
+// ─── Panel toggle ─────────────────────────────────────────────────────────
+function togglePanel(name,btn){
+  const isOpen = activePanel===name;
+  // Hide all panels
+  ['summary','history','priority'].forEach(p=>{
+    document.getElementById('panel-'+p).style.display='none';
+    document.getElementById('pbtn-'+p).textContent = p.charAt(0).toUpperCase()+p.slice(1)+' ▾';
+  });
+  if(!isOpen){
+    activePanel=name;
+    document.getElementById('panel-'+name).style.display='block';
+    btn.textContent=btn.textContent.replace('▾','▴');
+    if(name==='summary')buildSummaryTable();
+    if(name==='history')buildHistoryPanel();
+    if(name==='priority')buildPriorityPanel();
+  } else {
+    activePanel=null;
+  }
+}
+function refreshPanels(){
+  if(activePanel==='summary')buildSummaryTable();
+  if(activePanel==='history')buildHistoryPanel();
+  if(activePanel==='priority')buildPriorityPanel();
+}
+
+// ─── Summary ──────────────────────────────────────────────────────────────
+function getSummaryRows(){
+  const rows=[];
+  eachAll(ROOT,d=>{
+    if(d.depth===0)return;
+    const ancs=d.ancestors().reverse();
+    const pillar=ancs[1]?ancs[1].data.name:'';
+    let group='';
+    if(d.depth===3)group=ancs[2].data.name;
+    else if(d.depth===2&&d.parent&&d.parent.data.type==='group')group=d.parent.data.name;
+    const ann=ANN[nodePath(d)]||'';
+    const level=d.data.level||(d.data.type==='group'?'group':d.data.type==='pillar'?'pillar':'');
+    rows.push({pillar,group,name:d.data.name,level,ann,dtype:d.data.type||'topic',custom:!!d.data.custom,depth:d.depth});
+  });
+  return rows;
+}
+function setSumFilter(f,btn){
+  SUM_FILTER=f;
+  document.querySelectorAll('#panel-summary .ph-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  buildSummaryTable();
+}
+function annLabel(ann){
+  if(!ann)return'';
+  if(ann==='done')return'✓ Have this';
+  if(ann==='planned')return'◑ Planned';
+  if(ann==='mvp')return'↕ → MVP';
+  if(ann==='2.0')return'↕ → 2.0';
+  if(ann==='advanced')return'↕ → Advanced';
+  return ann;
+}
+function levelPill(level,isCustom){
+  if(!level||level==='pillar')return'';
+  const cls=isCustom?'lvl-custom':level==='mvp'?'lvl-mvp':level==='2.0'?'lvl-20':level==='advanced'?'lvl-adv':'lvl-grp';
+  const lbl=level==='mvp'?'MVP':level==='2.0'?'2.0':level==='advanced'?'Advanced':level;
+  const customTag=isCustom?' ★':'';
+  return`<span class="lvl-pill ${cls}">${lbl}${customTag}</span>`;
+}
+function buildSummaryTable(){
+  const rows=getSummaryRows();
+  const filtered=rows.filter(r=>{
+    if(SUM_FILTER==='all')return true;
+    if(SUM_FILTER==='done')return r.ann==='done';
+    if(SUM_FILTER==='planned')return r.ann==='planned';
+    if(SUM_FILTER==='recl')return r.ann&&r.ann!=='done'&&r.ann!=='planned';
+    if(SUM_FILTER==='none')return!r.ann;
+    return true;
+  });
+  const body=document.getElementById('sum-body');
+  const noRow=document.getElementById('no-rows');
+  body.innerHTML='';
+  if(!filtered.length){noRow.style.display='block';return;}
+  noRow.style.display='none';
+  filtered.forEach(r=>{
+    const tr=document.createElement('tr');
+    const rowCls=r.ann==='done'?'r-done':r.ann==='planned'?'r-plan':r.ann==='mvp'?'r-mvp':r.ann==='2.0'?'r-20':r.ann==='advanced'?'r-adv':'';
+    if(rowCls)tr.className=rowCls;
+    const annCls=r.ann==='done'?'ann-done':r.ann==='planned'?'ann-plan':r.ann?'ann-recl':'ann-none';
+    const nameStyle=r.dtype==='pillar'?'font-weight:500;color:#085041':r.dtype==='group'?'color:#5F5E5A;font-style:italic':'color:#222';
+    const isDT=r.dtype!=='pillar'&&r.dtype!=='group';
+    tr.innerHTML=`<td class="${annCls}">${annLabel(r.ann)||'—'}</td>
+      <td style="font-weight:500;color:#085041;font-size:11px">${r.dtype==='pillar'?`<strong>${r.name}</strong>`:r.pillar}</td>
+      <td style="color:#5F5E5A;font-style:italic;font-size:11px">${r.dtype==='group'?r.name:(r.group||'')}</td>
+      <td style="${nameStyle}">${isDT||r.dtype==='group'?r.name:''}</td>
+      <td>${levelPill(r.level,r.custom)}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+// ─── Version history ──────────────────────────────────────────────────────
+function saveNamedVersion(){
+  const label=prompt('Name this snapshot (e.g. "After session 1"):','Snapshot '+new Date().toLocaleDateString());
+  if(label===null)return;
+  const snap={id:Date.now(),label:label||'Unnamed',timestamp:new Date().toISOString(),ann:{...ANN},custom:JSON.parse(JSON.stringify(customNodes)),priorityOrder:[...priorityOrder]};
+  versions.unshift(snap);
+  if(versions.length>20)versions.pop();
+  saveState();
+  // Download the snapshot as a JSON file
+  const filename='aap-snapshot-'+snap.label.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.json';
+  dlFile(filename,JSON.stringify({...snap,exportedAs:'snapshot'},null,2),'application/json');
+  if(activePanel==='history')buildHistoryPanel();
+}
+function restoreVersion(idx){
+  const v=versions[idx];
+  if(!v)return;
+  if(!confirm(`Restore snapshot "${v.label}"? Your current annotations will be replaced.`))return;
+  ANN=JSON.parse(JSON.stringify(v.ann));
+  customNodes=JSON.parse(JSON.stringify(v.custom||[]));
+  buildRoot();
+  updateStatus();
+  saveState();
+  refreshPanels();
+  draw();
+}
+function diffVersions(idx){
+  const box=document.getElementById('diff-box');
+  const v=versions[idx];
+  if(!v){box.style.display='none';return;}
+  const cur=ANN, old=v.ann;
+  const allKeys=new Set([...Object.keys(cur),...Object.keys(old)]);
+  const added=[],changed=[],removed=[];
+  allKeys.forEach(k=>{
+    const shortK=k.split('|').slice(-1)[0];
+    if(cur[k]&&!old[k])added.push(`${shortK} → ${annLabel(cur[k])}`);
+    else if(!cur[k]&&old[k])removed.push(`${shortK} (was ${annLabel(old[k])})`);
+    else if(cur[k]!==old[k])changed.push(`${shortK}: ${annLabel(old[k])} → ${annLabel(cur[k])}`);
+  });
+  if(!added.length&&!changed.length&&!removed.length){box.innerHTML='<em>No differences from current state.</em>';box.style.display='block';return;}
+  let html='<strong>Compared to current state:</strong><br>';
+  if(added.length)html+=`<span class="diff-add">+ Added: ${added.join(', ')}</span><br>`;
+  if(changed.length)html+=`<span class="diff-chg">~ Changed: ${changed.join(', ')}</span><br>`;
+  if(removed.length)html+=`<span class="diff-rem">− Removed: ${removed.join(', ')}</span>`;
+  box.innerHTML=html;
+  box.style.display='block';
+}
+function downloadSnapshot(idx){
+  const v=versions[idx];
+  if(!v)return;
+  const filename='aap-snapshot-'+v.label.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.json';
+  dlFile(filename,JSON.stringify({...v,exportedAs:'snapshot'},null,2),'application/json');
+}
+function buildHistoryPanel(){
+  const list=document.getElementById('ver-list');
+  const noH=document.getElementById('no-history');
+  const box=document.getElementById('diff-box');
+  box.style.display='none';
+  list.innerHTML='';
+  if(!versions.length){noH.style.display='block';return;}
+  noH.style.display='none';
+  versions.forEach((v,i)=>{
+    const dt=new Date(v.timestamp);
+    const dateStr=dt.toLocaleDateString()+' '+dt.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+    const annCount=Object.keys(v.ann).length;
+    const div=document.createElement('div');
+    div.className='ver-item';
+    div.innerHTML=`<div style="flex:1">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="ver-label">${v.label}</span>
+        <span class="ver-diff" onclick="event.stopPropagation();diffVersions(${i})">Show diff</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:2px">
+        <span class="ver-time">${dateStr}</span>
+        <span class="ver-meta">${annCount} annotation${annCount!==1?'s':''}</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:4px">
+      <button onclick="event.stopPropagation();downloadSnapshot(${i})" style="font-size:11px;padding:2px 8px" title="Download this snapshot">↓</button>
+      <button onclick="event.stopPropagation();restoreVersion(${i})" style="font-size:11px;padding:2px 8px">Restore</button>
+    </div>`;
+    list.appendChild(div);
+  });
+}
+
+// ─── Priority panel ───────────────────────────────────────────────────────
+function getPriorityItems(){
+  const rows=[];
+  eachAll(ROOT,d=>{
+    if(d.depth===0||d.data.type==='pillar'||d.data.type==='group')return;
+    const ann=ANN[nodePath(d)];
+    if(!ann)return;
+    const ancs=d.ancestors().reverse();
+    const pillar=ancs[1]?ancs[1].data.name:'';
+    let group='';
+    if(d.depth===3)group=ancs[2].data.name;
+    else if(d.depth===2&&d.parent&&d.parent.data.type==='group')group=d.parent.data.name;
+    rows.push({path:nodePath(d),name:d.data.name,pillar,group,level:d.data.level||'',ann,custom:!!d.data.custom});
+  });
+  return rows;
+}
+function setPriFilter(f,btn){
+  PRI_FILTER=f;
+  document.querySelectorAll('#pri-filters .ph-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  buildPriorityPanel();
+}
+let dragSrcIdx = null;
+function buildPriorityPanel(){
+  const allItems=getPriorityItems();
+  const filtered=allItems.filter(r=>{
+    if(PRI_FILTER==='all')return true;
+    if(PRI_FILTER==='done')return r.ann==='done';
+    if(PRI_FILTER==='planned')return r.ann==='planned';
+    if(PRI_FILTER==='recl')return r.ann&&r.ann!=='done'&&r.ann!=='planned';
+    return true;
+  });
+  // Sort by priority order first, then by maturity level
+  const orderMap={};
+  priorityOrder.forEach((p,i)=>orderMap[p]=i);
+  filtered.sort((a,b)=>{
+    const oa=orderMap[a.path]!==undefined?orderMap[a.path]:9999;
+    const ob=orderMap[b.path]!==undefined?orderMap[b.path]:9999;
+    if(oa!==ob)return oa-ob;
+    return lvlOrder(a.level)-lvlOrder(b.level);
+  });
+  const list=document.getElementById('pri-list');
+  const noPri=document.getElementById('no-pri');
+  list.innerHTML='';
+  if(!filtered.length){noPri.style.display='block';return;}
+  noPri.style.display='none';
+  // Group by maturity level for visual separation
+  let lastLvl='';
+  filtered.forEach((item,idx)=>{
+    if(item.level!==lastLvl){
+      const gh=document.createElement('div');
+      gh.className='pri-group-head';
+      const lvlName=item.level==='mvp'?'MVP':item.level==='2.0'?'2.0':item.level==='advanced'?'Advanced':'Other';
+      gh.innerHTML=`<span>${lvlName}</span><div class="pri-group-line"></div>`;
+      list.appendChild(gh);
+      lastLvl=item.level;
+    }
+    const annCls=item.ann==='done'?'pri-ann-done':item.ann==='planned'?'pri-ann-plan':'pri-ann-recl';
+    const div=document.createElement('div');
+    div.className='pri-item';
+    div.setAttribute('draggable','true');
+    div.dataset.path=item.path;
+    div.dataset.idx=idx;
+    div.innerHTML=`<span class="pri-drag">⋮⋮</span>
+      <div style="flex:1;min-width:0">
+        <div class="pri-name">${item.name}</div>
+        <div class="pri-path">${item.pillar}${item.group?' › '+item.group:''}</div>
+      </div>
+      <span class="pri-ann ${annCls}">${annLabel(item.ann)}</span>`;
+    div.addEventListener('dragstart',e=>{dragSrcIdx=idx;div.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    div.addEventListener('dragend',()=>{div.classList.remove('dragging');list.querySelectorAll('.pri-item').forEach(el=>el.classList.remove('drag-over'));});
+    div.addEventListener('dragover',e=>{e.preventDefault();div.classList.add('drag-over');});
+    div.addEventListener('dragleave',()=>div.classList.remove('drag-over'));
+    div.addEventListener('drop',e=>{
+      e.preventDefault();div.classList.remove('drag-over');
+      if(dragSrcIdx===null||dragSrcIdx===idx)return;
+      // Rebuild priorityOrder based on this filtered list
+      const paths=filtered.map(it=>it.path);
+      const moved=paths.splice(dragSrcIdx,1)[0];
+      paths.splice(idx,0,moved);
+      // Merge with existing priorityOrder: preserve positions of non-filtered items
+      priorityOrder=paths;
+      saveState();
+      buildPriorityPanel();
+    });
+    list.appendChild(div);
+  });
+}
+function exportPriorityCSV(){
+  const allItems=getPriorityItems();
+  const orderMap={};priorityOrder.forEach((p,i)=>orderMap[p]=i);
+  allItems.sort((a,b)=>{
+    const oa=orderMap[a.path]!==undefined?orderMap[a.path]:9999;
+    const ob=orderMap[b.path]!==undefined?orderMap[b.path]:9999;
+    if(oa!==ob)return oa-ob;
+    return lvlOrder(a.level)-lvlOrder(b.level);
+  });
+  const filtered=allItems.filter(r=>PRI_FILTER==='all'||r.ann===PRI_FILTER||(PRI_FILTER==='recl'&&r.ann&&r.ann!=='done'&&r.ann!=='planned'));
+  const csv=[['Priority','Pillar','Group','Topic','Level','Status'],...filtered.map((r,i)=>[i+1,r.pillar,r.group,r.name,r.level,annLabel(r.ann)])]
+    .map(row=>row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  dlFile('aap-priority.csv',csv,'text/csv;charset=utf-8;');
+}
+function copyPriorityText(btn){
+  const allItems=getPriorityItems();
+  const orderMap={};priorityOrder.forEach((p,i)=>orderMap[p]=i);
+  allItems.sort((a,b)=>{
+    const oa=orderMap[a.path]!==undefined?orderMap[a.path]:9999;
+    const ob=orderMap[b.path]!==undefined?orderMap[b.path]:9999;
+    if(oa!==ob)return oa-ob;
+    return lvlOrder(a.level)-lvlOrder(b.level);
+  });
+  let out='AAP Priority List\n=================\n';
+  let lastLvl='';
+  allItems.forEach((r,i)=>{
+    if(r.level!==lastLvl){out+=`\n[${r.level.toUpperCase()}]\n`;lastLvl=r.level;}
+    out+=`  ${i+1}. ${r.name} (${r.pillar}${r.group?' › '+r.group:''}) — ${annLabel(r.ann)}\n`;
+  });
+  navigator.clipboard.writeText(out).then(()=>{const o=btn.textContent;btn.textContent='Copied ✓';setTimeout(()=>btn.textContent=o,2000);}).catch(()=>{});
+}
+
+// ─── Add custom topic ─────────────────────────────────────────────────────
+function openAddModal(){document.getElementById('add-modal').classList.add('show');}
+function closeAddModal(){
+  document.getElementById('add-modal').classList.remove('show');
+  ['at-name','at-pillar','at-group','at-level','at-desc'].forEach(id=>document.getElementById(id).value='');
+}
+function updateGroupList(){
+  const pillar=document.getElementById('at-pillar').value;
+  const sel=document.getElementById('at-group');
+  sel.innerHTML='<option value="">— direct child of pillar —</option>';
+  (PILLAR_GROUPS[pillar]||[]).forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=g;sel.appendChild(o);});
+}
+function addTopic(){
+  const name=document.getElementById('at-name').value.trim();
+  const pillar=document.getElementById('at-pillar').value;
+  const group=document.getElementById('at-group').value;
+  const level=document.getElementById('at-level').value;
+  const desc=document.getElementById('at-desc').value.trim();
+  if(!name||!pillar||!level){alert('Please fill in topic name, pillar, and maturity level.');return;}
+  customNodes.push({name,pillar,group,level,desc});
+  buildRoot();
+  // Expand the target pillar
+  eachAll(ROOT,d=>{
+    if(d.data.name===pillar&&d._children){d.children=d._children;d._children=null;}
+    if(group&&d.data.name===group&&d._children){d.children=d._children;d._children=null;}
+  });
+  closeAddModal();
+  saveState();
+  draw();
+}
+
+// ─── Exports ──────────────────────────────────────────────────────────────
+function dlFile(name,content,type){
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=name;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function exportCSV(){
+  const rows=getSummaryRows();
+  const csv=[['Pillar','Group','Topic','Level','Status'],...rows.map(r=>[
+    r.dtype==='pillar'?r.name:r.pillar,
+    r.dtype==='group'?r.name:r.group,
+    r.dtype!=='pillar'&&r.dtype!=='group'?r.name:'',
+    r.level,annLabel(r.ann)
+  ])].map(row=>row.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  dlFile('aap-assessment.csv',csv,'text/csv;charset=utf-8;');
+}
+function exportJSON(){
+  const payload={exported:new Date().toISOString(),ANN,customNodes,versions,priorityOrder};
+  dlFile('aap-assessment.json',JSON.stringify(payload,null,2),'application/json');
+}
+function importJSON(evt){
+  const file=evt.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const p=JSON.parse(e.target.result);
+      if(p.exportedAs==='snapshot'){
+        if(!confirm(`Load snapshot "${p.label}"? Your current annotations will be replaced.`)){evt.target.value='';return;}
+        ANN=JSON.parse(JSON.stringify(p.ann||{}));
+        customNodes=JSON.parse(JSON.stringify(p.custom||[]));
+        priorityOrder=p.priorityOrder||[];
+        if(!versions.find(v=>v.id===p.id)) versions.unshift({id:p.id,label:p.label,timestamp:p.timestamp,ann:p.ann,custom:p.custom,priorityOrder:p.priorityOrder});
+      } else {
+        if(!confirm('Load full session export? This will replace all current data including version history.')){evt.target.value='';return;}
+        ANN=p.ANN||{};customNodes=p.customNodes||[];versions=p.versions||[];priorityOrder=p.priorityOrder||[];
+      }
+      buildRoot();updateStatus();saveState();refreshPanels();draw();
+    }catch(err){alert('Could not parse JSON file. Please check it is a valid AAP export or snapshot.');}
+    evt.target.value='';
+  };
+  reader.readAsText(file);
+}
+function copyText(btn){
+  const rows=getSummaryRows();
+  let out='AAP Operational Model — Assessment\n'+'='.repeat(36)+'\n';
+  let curPillar='',curGroup='';
+  rows.forEach(r=>{
+    if(r.dtype==='pillar'){out+=`\n${r.name.toUpperCase()}\n`;curPillar=r.name;curGroup='';}
+    else if(r.dtype==='group'){out+=`  [${r.name}]\n`;curGroup=r.name;}
+    else{
+      const pfx=r.ann==='done'?'✓':r.ann==='planned'?'◑':r.ann?'↕':'·';
+      const ind=curGroup?'      ':'    ';
+      const lvl=r.level?` (${r.level})`:'';
+      const sta=r.ann&&r.ann!=='done'&&r.ann!=='planned'?` → ${r.ann}`:'';
+      out+=`${ind}${pfx} ${r.name}${lvl}${sta}\n`;
+    }
+  });
+  const done=Object.values(ANN).filter(v=>v==='done').length;
+  const plan=Object.values(ANN).filter(v=>v==='planned').length;
+  out+=`\nSummary: ${done} have this · ${plan} planned · ${Object.keys(ANN).length-done-plan} reclassified\n`;
+  navigator.clipboard.writeText(out).then(()=>{const o=btn.textContent;btn.textContent='Copied ✓';setTimeout(()=>btn.textContent=o,2000);}).catch(()=>{
+    const w=window.open('','_blank');
+    w.document.write('<pre style="font-family:monospace;font-size:13px;padding:20px">'+out.replace(/</g,'&lt;')+'</pre>');
+  });
+}
+
+// ─── Tooltip ──────────────────────────────────────────────────────────────
+let ttTimer=null;
+const TT=document.getElementById('tooltip');
+function showTooltip(d,mx,my){
+  const name=d.data.name;
+  const guide=GUIDE[name]||(d.data.desc?{desc:d.data.desc,prompts:[]}:null);
+  if(!guide)return;
+  document.getElementById('tt-custom-badge').style.display=d.data.custom?'inline-block':'none';
+  document.getElementById('tt-title').textContent=name;
+  document.getElementById('tt-desc').textContent=guide.desc||'';
+  const ql=document.getElementById('tt-ql-head');
+  const pp=document.getElementById('tt-prompts');
+  pp.innerHTML='';
+  if(guide.prompts&&guide.prompts.length){
+    ql.style.display='block';
+    guide.prompts.forEach(p=>{const el=document.createElement('div');el.className='tt-prompt';el.textContent=p;pp.appendChild(el);});
+  } else {ql.style.display='none';}
+  positionTooltip(mx,my);
+  TT.classList.add('show');
+}
+function positionTooltip(mx,my){
+  const W=TT.offsetWidth||280, H=TT.offsetHeight||180;
+  const vw=window.innerWidth, vh=window.innerHeight;
+  let x=mx+14, y=my+10;
+  if(x+W>vw-8)x=mx-W-8;
+  if(y+H>vh-8)y=Math.max(8,vh-H-8);
+  TT.style.left=x+'px';TT.style.top=y+'px';
+}
+function hideTooltip(){TT.classList.remove('show');}
+
+// ─── Click handler ────────────────────────────────────────────────────────
+function handleClick(d){
+  if(d.depth===0)return;
+  const key=nodePath(d);
+  if(MODE==='nav'){if(d.children||d._children){toggle(d);draw();}}
+  else if(MODE==='clear'){delete ANN[key];updateStatus();saveState();refreshPanels();draw();}
+  else{ANN[key]=MODE;updateStatus();saveState();refreshPanels();updateDropZone();draw();}
+}
+
+// ─── Draw ─────────────────────────────────────────────────────────────────
+function draw(){
+  G.selectAll('*').remove();
+  const tree=LAY(ROOT);
+  const nodes=tree.descendants();
+  const links=tree.links();
+  let x0=Infinity,x1=-Infinity,y1=-Infinity;
+  nodes.forEach(d=>{if(d.x-NW/2<x0)x0=d.x-NW/2;if(d.x+NW/2>x1)x1=d.x+NW/2;if(d.y>y1)y1=d.y;});
+  const P=24,ox=-x0+P,oy=NH/2+P;
+  SV.attr('width',Math.max(x1-x0+P*2,300)).attr('height',y1+NH+P*2);
+  links.forEach(l=>{
+    const sx=l.source.x+ox,sy=l.source.y+oy+NH/2,tx=l.target.x+ox,ty=l.target.y+oy-NH/2,my=(sy+ty)/2;
+    G.append('path').attr('fill','none').attr('stroke','#C5C4BC').attr('stroke-width',0.75)
+      .attr('d',`M${sx},${sy}C${sx},${my} ${tx},${my} ${tx},${ty}`);
+  });
+  nodes.forEach(d=>{
+    const c=getColor(d);
+    const ann=ANN[nodePath(d)];
+    const isAnn=!!ann&&d.depth>0;
+    const canExpand=(d.children||d._children)&&d.depth>0;
+    const isLeaf=!d.children&&!d._children&&d.depth>0;
+    const hasGuide=!!(GUIDE[d.data.name]||(d.data.custom&&d.data.desc));
+    const nx=d.x+ox-NW/2,ny=d.y+oy-NH/2;
+    const cur=d.depth===0?'default':MODE==='nav'?(canExpand?'pointer':'default'):'pointer';
+    const ng=G.append('g').attr('class','nd').datum(d)
+      .attr('transform',`translate(${nx},${ny})`).style('cursor',cur)
+      .on('click',()=>handleClick(d))
+      .on('mousemove',e=>{
+        if(!hasGuide){hideTooltip();return;}
+        clearTimeout(ttTimer);
+        ttTimer=setTimeout(()=>showTooltip(d,e.clientX,e.clientY),220);
+      })
+      .on('mouseleave',()=>{clearTimeout(ttTimer);hideTooltip();})
+      .on('mouseover',function(){d3.select(this).select('.nr').attr('opacity',0.8);})
+      .on('mouseout',function(){d3.select(this).select('.nr').attr('opacity',1);});
+    if(isAnn){
+      ng.append('rect').attr('x',-2).attr('y',-2).attr('width',NW+4).attr('height',NH+4).attr('rx',7)
+        .attr('fill','none').attr('stroke',c.s).attr('stroke-width',2).attr('opacity',0.35).attr('pointer-events','none');
+    }
+    // Custom topic: dashed border
+    const sw=d.data.type==='root'?2:d.data.type==='pillar'?1.5:isAnn?1.5:0.75;
+    const rect=ng.append('rect').attr('class','nr').attr('width',NW).attr('height',NH).attr('rx',5)
+      .attr('fill',c.f).attr('stroke',c.s).attr('stroke-width',sw);
+    if(d.data.custom&&!isAnn)rect.attr('stroke-dasharray','4,2');
+
+    const isBig=d.data.type==='root'||d.data.type==='pillar';
+    const lines=wrapName(d.data.name);
+    const fs=isBig?12:11,fw=isBig?500:400;
+    const badgeW=isAnn?12:0,indW=canExpand?14:0;
+    const cx=(NW+badgeW-indW)/2;
+    if(lines.length===1){
+      ng.append('text').attr('x',cx).attr('y',NH/2).attr('text-anchor','middle').attr('dominant-baseline','middle')
+        .attr('font-size',fs).attr('font-weight',fw).attr('fill',c.t).attr('pointer-events','none').text(lines[0]);
+    } else {
+      const lfs=Math.max(fs-1,9),gap=lfs+2;
+      const t=ng.append('text').attr('text-anchor','middle').attr('pointer-events','none')
+        .attr('font-size',lfs).attr('font-weight',fw).attr('fill',c.t);
+      t.append('tspan').attr('x',cx).attr('y',NH/2-gap/2+1).text(lines[0]);
+      t.append('tspan').attr('x',cx).attr('dy',gap).text(lines[1]);
+    }
+    if(isAnn){
+      const icon=ann==='done'?'✓':ann==='planned'?'◑':'↕';
+      ng.append('text').attr('x',6).attr('y',NH/2+1).attr('dominant-baseline','middle')
+        .attr('font-size',10).attr('font-weight',500).attr('fill',c.s).attr('pointer-events','none').text(icon);
+    }
+    // Hover dot for topics with guide
+    if(hasGuide&&isLeaf&&!canExpand){
+      ng.append('circle').attr('cx',NW-5).attr('cy',6).attr('r',3).attr('fill',c.s).attr('opacity',0.5).attr('pointer-events','none');
+    }
+    if(canExpand){
+      ng.append('text').attr('x',NW-7).attr('y',NH/2+1).attr('text-anchor','middle').attr('dominant-baseline','middle')
+        .attr('font-size',9).attr('fill',c.s).attr('pointer-events','none')
+        .text(d.children?'▾':('▸'+(d._children?d._children.length:'')));
+      ng.append('rect').attr('x',NW-18).attr('y',2).attr('width',16).attr('height',NH-4).attr('rx',3)
+        .attr('fill','transparent').style('cursor','pointer')
+        .on('click',event=>{event.stopPropagation();toggle(d);draw();});
+    }
+  });
+}
+
+// ─── Search ───────────────────────────────────────────────────────────────
+let searchTerm = '';
+function onSearch(val) {
+  searchTerm = val.trim().toLowerCase();
+  document.getElementById('searchClear').style.display = searchTerm ? 'inline-block' : 'none';
+  if (!searchTerm) {
+    document.getElementById('searchCount').style.display = 'none';
+    draw();
+    return;
+  }
+  // Expand all so matches are visible
+  eachAll(ROOT, d => {
+    if (d._children) { d.children = d._children; d._children = null; }
+  });
+  draw();
+  highlightSearch();
+}
+function clearSearch() {
+  document.getElementById('searchBox').value = '';
+  onSearch('');
+}
+function highlightSearch() {
+  if (!searchTerm) return;
+  let count = 0;
+  document.querySelectorAll('#sv g.nd').forEach(g => {
+    const d = d3.select(g).datum();
+    if (!d) return;
+    const name = (d.data.name || '').toLowerCase().replace(/\n/g, ' ');
+    const match = name.includes(searchTerm);
+    const rect = g.querySelector('.nr');
+    if (rect) rect.style.outline = match && d.depth > 0 ? '2px solid var(--rh-red)' : 'none';
+    if (match && d.depth > 0) count++;
+  });
+  const sc = document.getElementById('searchCount');
+  sc.style.display = 'inline';
+  sc.textContent = count === 0 ? 'No matches' : count + ' match' + (count !== 1 ? 'es' : '');
+}
+
+// ─── Help modal ───────────────────────────────────────────────────────────
+function toggleHelp() {
+  const m = document.getElementById('help-modal');
+  m.classList.toggle('show');
+}
+function closeHelp() {
+  document.getElementById('help-modal').classList.remove('show');
+}
+
+// ─── Mode indicator ───────────────────────────────────────────────────────
+const MODE_LABELS = {
+  nav: null,
+  done: '✓ Mode: Have this',
+  planned: '◑ Mode: Planned',
+  mvp: '↕ Mode: Reclassify → MVP',
+  '2.0': '↕ Mode: Reclassify → 2.0',
+  advanced: '↕ Mode: Reclassify → Advanced',
+  clear: '✕ Mode: Clear marks'
+};
+function updateModeIndicator() {
+  const el = document.getElementById('modeIndicator');
+  const label = MODE_LABELS[MODE];
+  if (label) {
+    el.textContent = label;
+    el.style.display = 'inline-block';
+    const colors = {
+      done: 'var(--rh-green)', planned: '#795600',
+      mvp: '#795600', '2.0': 'var(--rh-blue-dark)',
+      advanced: 'var(--rh-red-dark)', clear: 'var(--rh-gray-mid)'
+    };
+    el.style.background = 'var(--rh-gray-100)';
+    el.style.color = colors[MODE] || 'var(--rh-gray-dark)';
+    el.style.border = '1px solid currentColor';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// ─── Autosave timestamp ───────────────────────────────────────────────────
+function updateAutoSaveTime() {
+  const el = document.getElementById('autoSaveTime');
+  if (el) el.textContent = 'Saved ' + new Date().toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit'});
+}
+
+// ─── Keyboard shortcuts ───────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+  if (e.key === 'Escape') {
+    // Close any open modal first
+    if (document.getElementById('help-modal').classList.contains('show')) { closeHelp(); return; }
+    if (document.getElementById('add-modal').classList.contains('show')) { closeAddModal(); return; }
+    // Return to navigate mode
+    const navBtn = document.querySelector('.mbtn.on');
+    setMode('nav', document.querySelector('.mbtn'));
+    document.querySelectorAll('.mbtn').forEach(b => b.classList.remove('on'));
+    document.querySelector('.mbtn').classList.add('on');
+    updateModeIndicator();
+  }
+  if (e.key === '1') { setLvl(1, document.querySelectorAll('.vbtn')[0]); }
+  if (e.key === '2') { setLvl(2, document.querySelectorAll('.vbtn')[1]); }
+  if (e.key === '3') { setLvl(99, document.querySelectorAll('.vbtn')[2]); }
+});
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+loadState();
+buildRoot();
+draw();
+updateStatus();
+updateDropZone();
+if(typeof updateModeIndicator === "function") updateModeIndicator();
+
+// ─── Drop zone visibility ─────────────────────────────────────────────────
+function updateDropZone(){
+  const hasSession=Object.keys(ANN).length>0||customNodes.length>0||versions.length>0;
+  document.getElementById('drop-zone').classList.toggle('visible',!hasSession);
+}
+
+// ─── Page-level drag and drop ─────────────────────────────────────────────
+let dragCounter=0;
+const overlay=document.getElementById('page-drop-overlay');
+const dropZoneEl=document.getElementById('drop-zone');
+
+function handleFileDrop(file){
+  if(!file||!file.name.endsWith('.json'))return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const p=JSON.parse(e.target.result);
+      if(p.exportedAs==='snapshot'){
+        if(!confirm(`Load snapshot "${p.label}"? Your current annotations will be replaced.`))return;
+        ANN=JSON.parse(JSON.stringify(p.ann||{}));
+        customNodes=JSON.parse(JSON.stringify(p.custom||[]));
+        priorityOrder=p.priorityOrder||[];
+        if(!versions.find(v=>v.id===p.id)) versions.unshift({id:p.id,label:p.label,timestamp:p.timestamp,ann:p.ann,custom:p.custom,priorityOrder:p.priorityOrder});
+      } else {
+        if(!confirm('Load full session export? This will replace all current data including version history.'))return;
+        ANN=p.ANN||{};customNodes=p.customNodes||[];versions=p.versions||[];priorityOrder=p.priorityOrder||[];
+      }
+      buildRoot();updateStatus();saveState();refreshPanels();draw();updateDropZone();
+    }catch(err){alert('Could not read the file. Make sure it is a valid AAP snapshot or session export.');}
+  };
+  reader.readAsText(file);
+}
+
+// Page-level drag events (works whether drop zone is visible or not)
+document.addEventListener('dragenter',e=>{
+  if([...e.dataTransfer.types].includes('Files')){
+    dragCounter++;
+    overlay.classList.add('show');
+  }
+});
+document.addEventListener('dragleave',()=>{
+  dragCounter--;
+  if(dragCounter<=0){dragCounter=0;overlay.classList.remove('show');}
+});
+document.addEventListener('dragover',e=>e.preventDefault());
+document.addEventListener('drop',e=>{
+  e.preventDefault();
+  dragCounter=0;overlay.classList.remove('show');
+  const file=e.dataTransfer.files[0];
+  handleFileDrop(file);
+});
+
+// Drop zone element drag events (extra visual feedback)
+dropZoneEl.addEventListener('dragover',e=>{e.preventDefault();dropZoneEl.classList.add('drag-active');});
+dropZoneEl.addEventListener('dragleave',()=>dropZoneEl.classList.remove('drag-active'));
+dropZoneEl.addEventListener('drop',e=>{e.preventDefault();dropZoneEl.classList.remove('drag-active');handleFileDrop(e.dataTransfer.files[0]);});
+
+// Also hook up the existing importInput so updateDropZone fires after file pick
+document.getElementById('importInput').addEventListener('change',()=>{setTimeout(updateDropZone,100);});
+</script>
+</div><!-- /content -->
+</body>
+</html>
