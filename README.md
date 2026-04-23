@@ -27,13 +27,12 @@ This tool lets you and your team visually map where you are today against the mo
 
 ## Getting started
 
-### Running locally
+### Running locally (Offline)
 
 The tool is a single HTML file with no build step required.
 
 1. Download `index.html` from this repository
-2. Place your logo file (named `logo.svg` or `logo.png`) in the same folder
-3. Open `index.html` in any modern browser
+2. Open `index.html` in any modern browser
 
 That's it. No server, no dependencies, no installation.
 
@@ -85,7 +84,7 @@ The tool is intentionally a single HTML file so that contributors do not need a 
 
 ### Changing the logo
 
-Replace `logo.svg` in the repo root with your own file. Supported formats: SVG (recommended) or PNG.
+When needed, replace `logo.svg` in the repo root with your own file. Supported formats: SVG (recommended) or PNG.
 
 - Height is constrained to `32px`; width scales automatically up to `140px`
 - If the file is missing, `OMA` appears as a text fallback in the header
