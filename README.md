@@ -13,8 +13,8 @@ This tool lets you and your team visually map where you are today against the mo
 
 ## What it does
 
-- **Interactive tree** — browse all 67 model topics across 5 pillars and 14 groups, collapsed or expanded by pillar, group, or all at once
-- **Workshop annotation** — mark topics as "Have this", "Planned", or reclassify their maturity level during a session
+- **Interactive tree** — browse all 92 model topics across 5 pillars (People, Process, Technology, Governance, Strategy) and 13 groups, collapsed or expanded by pillar, group, or all at once
+- **Workshop annotation** — mark topics as "Have this", "Planned", or "Risk", or reclassify their maturity level during a session
 - **Hover guidance** — every leaf node includes a description and 3 discussion prompts drawn from the facilitator guide
 - **Session persistence** — auto-saves to browser storage; named snapshots download as JSON files for sharing between sessions
 - **Version history** — save named snapshots, compare diffs between sessions, restore any previous state
@@ -27,14 +27,20 @@ This tool lets you and your team visually map where you are today against the mo
 
 ## Getting started
 
-### Running locally (Offline)
+### Running locally
 
-The tool is a single HTML file with no build step required.
+The tool has no build step, but it does require a local server — topic data lives in `data.yaml`, loaded via `fetch()` at runtime, and most browsers (Chrome included) block `fetch()` of local files opened directly as a `file://` URL.
 
-1. Download `index.html` from this repository
-2. Open `index.html` in any modern browser
+1. Download or clone this repository (you need both `index.html` and `data.yaml`, in the same folder)
+2. From that folder, start any static file server, for example:
 
-That's it. No server, no dependencies, no installation.
+   ```bash
+   python3 -m http.server 8765
+   ```
+
+3. Open `http://localhost:8765/index.html` in any modern browser
+
+No dependencies or installation beyond a Python (or Node, etc.) install most machines already have. Hosted use (GitHub Pages) is unaffected — it's always served over HTTP.
 
 ### Running a workshop
 
@@ -42,7 +48,7 @@ That's it. No server, no dependencies, no installation.
 2. Share your screen or use a display — the tool is designed for facilitated group sessions
 3. Use the **View** buttons to set depth (Pillars → Groups → All topics)
 4. Hover over any leaf node to see its description and discussion prompts
-5. Select an annotation mode (Have this / Planned) and click nodes to mark current state
+5. Select an annotation mode (Have this / Planned / Risk) and click nodes to mark current state
 6. When done, use **↓ Save snapshot** to download a named JSON file
 7. In a follow-up session, drag the JSON file onto the page to restore where you left off
 
@@ -59,9 +65,10 @@ That's it. No server, no dependencies, no installation.
 
 ## Repository structure
 
-```
+```text
 oma-workshop/
-├── index.html          ← The complete tool (single self-contained file)
+├── index.html          ← The tool itself (markup, styles, behaviour)
+├── data.yaml           ← All topic data: the tree structure and every hover tooltip
 ├── logo.svg            ← Your logo — replace this file to rebrand
 ├── README.md           ← This file
 ├── CHANGELOG.md        ← Full change history
@@ -80,7 +87,7 @@ oma-workshop/
 
 ## How to edit the tool
 
-The tool is intentionally a single HTML file so that contributors do not need a build pipeline. Everything lives in `index.html`. Here is what does what.
+The tool is intentionally simple so that contributors do not need a build pipeline. Behaviour and styling live in `index.html`; all topic data (the tree structure and every hover tooltip) lives in `data.yaml`, loaded at runtime. Here is what does what.
 
 ### Changing the logo
 
@@ -108,60 +115,54 @@ Find and update this tag in the header:
 
 ### Adding or editing a topic in the tree
 
-Topics live in the `BASE_DATA` constant in the `<script>` block near the bottom of `index.html`. Search for `const BASE_DATA` to find it.
+The tree lives under the `tree:` key in `data.yaml`. Each node has:
 
-The tree is structured as nested objects. Each node has:
-
-```js
-{
-  name: 'Topic name',      // displayed in the tree
-  level: 'mvp',            // 'mvp', '2.0', or 'advanced'
-  type: 'group',           // optional — only set for groups: type:'group'
-  children: [...]          // optional — child nodes
-}
+```yaml
+- name: Topic name      # displayed in the tree
+  level: mvp             # mvp, "2.0", or advanced — quote 2.0 so YAML doesn't read it as a number
+  type: group            # optional — only set for groups
+  children: [...]        # optional — child nodes
 ```
 
-**To add a new topic**, find the correct pillar and group and add a new object to the `children` array:
+**To add a new topic**, find the correct pillar and group and add a new entry to the `children` list:
 
-```js
-{ name: 'My new topic', level: 'mvp' }
+```yaml
+- name: My new topic
+  level: mvp
 ```
 
-**To add a new group**, add an object with `type: 'group'` and a `children` array:
+**To add a new group**, add an entry with `type: group` and its own `children` list:
 
-```js
-{
-  name: 'My new group',
-  type: 'group',
-  children: [
-    { name: 'First topic', level: 'mvp' },
-    { name: 'Second topic', level: '2.0' }
-  ]
-}
+```yaml
+- name: My new group
+  type: group
+  children:
+    - name: First topic
+      level: mvp
+    - name: Second topic
+      level: "2.0"
 ```
 
-**To rename a topic**, find its `name` property and change the string. If the topic also has guidance (description + prompts), update the matching key in the `GUIDE` object — the keys must match exactly.
+**To rename a topic**, change its `name` value. If the topic also has guidance (description + prompts), update the matching key under `tooltips:` in the same file — the keys must match exactly, including capitalisation.
 
 ### Adding hover guidance to a topic
 
-Guidance lives in the `GUIDE` constant, directly above `BASE_DATA`. The key is the topic name (must match exactly, including capitalisation).
+Guidance lives under the `tooltips:` key in `data.yaml`, keyed by the exact topic name:
 
-```js
-'My new topic': {
-  desc: 'A one or two sentence description of what this topic is and why it matters.',
-  prompts: [
-    'First discussion question to ask the group?',
-    'Second question — often about current state or a specific incident?',
-    'Third question — about what good would look like?'
-  ]
-},
+```yaml
+My new topic:
+  desc: "A one or two sentence description of what this topic is and why it matters."
+  prompts:
+    - "First discussion question to ask the group?"
+    - "Second question — often about current state or a specific incident?"
+    - "Third question — about what good would look like?"
 ```
 
-Three prompts per topic is the convention. If a topic has no entry in `GUIDE`, hovering over it shows no tooltip — this is fine; add guidance as time allows.
+Three prompts per topic is the convention. If a topic has no entry under `tooltips:`, hovering over it shows no tooltip — this is fine; add guidance as time allows.
 
-### Changing the GUIDE groups available when adding a custom topic
+### Changing the groups available when adding a custom topic
 
-The dropdown in the "Add topic" modal is driven by `PILLAR_GROUPS` near the top of the script block:
+The dropdown in the "Add topic" modal is driven by `PILLAR_GROUPS` near the top of the script block in `index.html`:
 
 ```js
 const PILLAR_GROUPS = {
@@ -173,7 +174,7 @@ const PILLAR_GROUPS = {
 };
 ```
 
-Add or rename entries here to match any structural changes to `BASE_DATA`.
+Add or rename entries here to match any structural changes you make to the `tree:` section of `data.yaml`.
 
 ### Changing colours and theme
 
@@ -199,6 +200,7 @@ const PAL = {
   advanced: { f:'#F4C5BE', s:'#C9190B', t:'#7D1007' },
   done:     { f:'#BDE5B8', s:'#3E8635', t:'#1E4F18' },
   planned:  { f:'#FCF7E0', s:'#F0AB00', t:'#795600' },
+  risk:     { f:'#FFE0B2', s:'#C9590C', t:'#6E3000' },
 };
 ```
 
@@ -238,11 +240,11 @@ The underlying model is maintained at [ansible-ops-model.gitlab.io](https://ansi
 
 ## Design decisions
 
-**Why a single HTML file?**
-Contributors to this project are primarily Ansible practitioners and Red Hat consultants, not web developers. A single file with no build step means anyone can open a pull request without needing Node, npm, or any toolchain. The file can also be downloaded and used completely offline, which matters in workshop contexts where internet access is unreliable.
+**Why no build step?**
+Contributors to this project are primarily Ansible practitioners and Red Hat consultants, not web developers. No build pipeline means anyone can open a pull request without needing Node, npm, or any toolchain.
 
-**Why is topic data embedded in JavaScript rather than a separate JSON file?**
-For the same reason — a separate JSON file would require a local server to load (browser same-origin policy blocks `fetch()` for local files). Embedding it in the script makes the file self-contained. Future versions hosted on GitHub Pages could separate the data into `data/topics.json` and `data/guide.json` since they would always be served over HTTP.
+**Why is topic data in a separate `data.yaml` file rather than embedded in the script?**
+A YAML tree and a flat lookup of descriptions/prompts is far easier for non-developer contributors to read and edit than a large nested JavaScript object literal. The tradeoff is that `data.yaml` is loaded via `fetch()` at runtime, which means the tool can no longer be opened by double-clicking `index.html` as a `file://` URL — see "Running locally" above for the one-line workaround. Hosted use (GitHub Pages) is unaffected, since that's always served over HTTP.
 
 **Why Red Hat branding?**
 This tool was built by the Red Hat EMEA Ansible Launch Team and uses the Red Hat / PatternFly design system. The branding can be changed by swapping `logo.svg` and updating the CSS variables — the tool itself is model-agnostic.
