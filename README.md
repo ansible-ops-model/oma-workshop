@@ -97,7 +97,7 @@ The tool is intentionally simple so that contributors do not need a build pipeli
 
 When needed, replace `logo.svg` in the repo root with your own file. Supported formats: SVG (recommended) or PNG.
 
-- Height is constrained to `32px`; width scales automatically up to `140px`
+- Height is constrained to `38px`; width scales automatically up to `165px`
 - If the file is missing, `OMA` appears as a text fallback in the header
 - To change the filename, edit the `src` attribute of the `<img class="rh-hat">` element in `index.html`
 
