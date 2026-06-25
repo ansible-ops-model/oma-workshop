@@ -2,7 +2,7 @@
 
 An interactive benchmarking and facilitation tool for the [Operational Model for Ansible (OMA)](https://ansible-ops-model.gitlab.io/), built by the Red Hat EMEA Ansible Launch Team.
 
-The OMA model describes good practice for running a central automation platform based on Ansible Automation Platform — covering People, Process, Technology, Governance, and Strategy across three maturity levels: MVP, 2.0, and Advanced.
+The OMA model describes good practice for running a central automation platform based on Ansible Automation Platform — covering People, Process, and Technology across three maturity levels: MVP, 2.0, and Advanced.
 
 This tool lets you and your team visually map where you are today against the model, annotate your progress, prioritise what to tackle next, and export the results.
 
@@ -13,9 +13,11 @@ This tool lets you and your team visually map where you are today against the mo
 
 ## What it does
 
-- **Interactive tree** — browse all 67 model topics across 5 pillars and 14 groups, collapsed or expanded by pillar, group, or all at once
-- **Workshop annotation** — mark topics as "Have this", "Planned", or reclassify their maturity level during a session
-- **Hover guidance** — every leaf node includes a description and 3 discussion prompts drawn from the facilitator guide
+- **Interactive tree** — browse all 92 model topics across 3 pillars (People, Process, Technology) and 14 groups, collapsed or expanded by pillar, group, or all at once
+- **Workshop annotation** — mark topics as "Have this", "Planned", "Risk", "Not Considered", or "Not Relevant", or reclassify their maturity level during a session. The goal of a workshop is to leave every topic tagged with one of these — a blank topic means it hasn't been discussed yet, not that it's been judged irrelevant
+- **Workshop progress bar** — a live, colour-coded bar (overall and per-pillar) showing how much of the tree has been tagged so far in the session
+- **Hover guidance** — every topic and group includes a description, and topics include 3 discussion prompts, drawn from the facilitator guide
+- **Duplicate-topic notices** — topics that intentionally appear in more than one place in the model (e.g. "Capacity management") are flagged on hover so neither instance gets missed
 - **Session persistence** — auto-saves to browser storage; named snapshots download as JSON files for sharing between sessions
 - **Version history** — save named snapshots, compare diffs between sessions, restore any previous state
 - **Priority ordering** — drag and reorder annotated items to build a prioritised roadmap; export as CSV
@@ -27,22 +29,30 @@ This tool lets you and your team visually map where you are today against the mo
 
 ## Getting started
 
-### Running locally (Offline)
+### Running locally
 
-The tool is a single HTML file with no build step required.
+The tool has no build step, but as of v4.0.0 it **requires a local server** — it can no longer be opened by double-clicking `index.html` (a `file://` URL). Topic data now lives in `data.yaml`, loaded via `fetch()` at runtime, and most browsers (Chrome included) block `fetch()` of local files under `file://` for security reasons.
 
-1. Download `index.html` from this repository
-2. Open `index.html` in any modern browser
+1. Download or clone this repository (you need both `index.html` and `data.yaml`, in the same folder)
+2. From that folder, start any static file server, for example:
 
-That's it. No server, no dependencies, no installation.
+   ```bash
+   python3 -m http.server 8765
+   ```
+
+3. Open `http://localhost:8765/index.html` in any modern browser
+
+No dependencies or installation beyond a Python (or Node, etc.) install most machines already have. If you need guaranteed offline use with literally no server step — e.g. a workshop venue with no reliable network and no way to run a local server — use the [v3.0.0 release](../../releases) instead, or inline `data.yaml`'s content back into the script block yourself. See `CHANGELOG.md` for the full reasoning behind this tradeoff.
+
+Hosted use (GitHub Pages) is unaffected — it's always served over HTTP, so this doesn't apply there.
 
 ### Running a workshop
 
 1. Open the tool in a browser (locally or at the hosted URL)
 2. Share your screen or use a display — the tool is designed for facilitated group sessions
 3. Use the **View** buttons to set depth (Pillars → Groups → All topics)
-4. Hover over any leaf node to see its description and discussion prompts
-5. Select an annotation mode (Have this / Planned) and click nodes to mark current state
+4. Hover over any topic or group to see its description and (for topics) discussion prompts
+5. Select an annotation mode (Have this / Planned / Risk / Not Considered / Not Relevant) and click nodes to mark current state — aim to tag every topic by the end of the session, using the progress bar to track how far through you are
 6. When done, use **↓ Save snapshot** to download a named JSON file
 7. In a follow-up session, drag the JSON file onto the page to restore where you left off
 
@@ -59,9 +69,10 @@ That's it. No server, no dependencies, no installation.
 
 ## Repository structure
 
-```
+```text
 oma-workshop/
-├── index.html          ← The complete tool (single self-contained file)
+├── index.html          ← The tool itself (markup, styles, behaviour)
+├── data.yaml           ← All topic data: the tree structure and every hover tooltip
 ├── logo.svg            ← Your logo — replace this file to rebrand
 ├── README.md           ← This file
 ├── CHANGELOG.md        ← Full change history
@@ -80,7 +91,7 @@ oma-workshop/
 
 ## How to edit the tool
 
-The tool is intentionally a single HTML file so that contributors do not need a build pipeline. Everything lives in `index.html`. Here is what does what.
+The tool is intentionally simple so that contributors do not need a build pipeline. As of v4.0.0, behaviour and styling live in `index.html`, and all topic data (the tree structure and every hover tooltip) lives in `data.yaml`, loaded at runtime. Here is what does what.
 
 ### Changing the logo
 
@@ -103,77 +114,71 @@ Find this line in `index.html` and edit the text:
 Find and update this tag in the header:
 
 ```html
-<span class="rh-header-tag">v3.0.0</span>
+<span class="rh-header-tag">v4.0.0</span>
 ```
 
 ### Adding or editing a topic in the tree
 
-Topics live in the `BASE_DATA` constant in the `<script>` block near the bottom of `index.html`. Search for `const BASE_DATA` to find it.
+The tree lives under the `tree:` key in `data.yaml`. Each node has:
 
-The tree is structured as nested objects. Each node has:
-
-```js
-{
-  name: 'Topic name',      // displayed in the tree
-  level: 'mvp',            // 'mvp', '2.0', or 'advanced'
-  type: 'group',           // optional — only set for groups: type:'group'
-  children: [...]          // optional — child nodes
-}
+```yaml
+- name: Topic name      # displayed in the tree
+  level: mvp             # mvp, "2.0", or advanced — quote 2.0 so YAML doesn't read it as a number
+  type: group            # optional — only set for groups
+  children: [...]        # optional — child nodes
 ```
 
-**To add a new topic**, find the correct pillar and group and add a new object to the `children` array:
+**To add a new topic**, find the correct pillar and group and add a new entry to the `children` list:
 
-```js
-{ name: 'My new topic', level: 'mvp' }
+```yaml
+- name: My new topic
+  level: mvp
 ```
 
-**To add a new group**, add an object with `type: 'group'` and a `children` array:
+**To add a new group**, add an entry with `type: group` and its own `children` list:
 
-```js
-{
-  name: 'My new group',
-  type: 'group',
-  children: [
-    { name: 'First topic', level: 'mvp' },
-    { name: 'Second topic', level: '2.0' }
-  ]
-}
+```yaml
+- name: My new group
+  type: group
+  children:
+    - name: First topic
+      level: mvp
+    - name: Second topic
+      level: "2.0"
 ```
 
-**To rename a topic**, find its `name` property and change the string. If the topic also has guidance (description + prompts), update the matching key in the `GUIDE` object — the keys must match exactly.
+**To rename a topic**, change its `name` value. If the topic also has guidance (description + prompts), update the matching key under `tooltips:` in the same file — the keys must match exactly, including capitalisation.
 
-### Adding hover guidance to a topic
+### Adding hover guidance to a topic or group
 
-Guidance lives in the `GUIDE` constant, directly above `BASE_DATA`. The key is the topic name (must match exactly, including capitalisation).
+Guidance lives under the `tooltips:` key in `data.yaml`, keyed by the exact topic or group name:
 
-```js
-'My new topic': {
-  desc: 'A one or two sentence description of what this topic is and why it matters.',
-  prompts: [
-    'First discussion question to ask the group?',
-    'Second question — often about current state or a specific incident?',
-    'Third question — about what good would look like?'
-  ]
-},
+```yaml
+My new topic:
+  desc: "A one or two sentence description of what this topic is and why it matters."
+  prompts:
+    - "First discussion question to ask the group?"
+    - "Second question — often about current state or a specific incident?"
+    - "Third question — about what good would look like?"
 ```
 
-Three prompts per topic is the convention. If a topic has no entry in `GUIDE`, hovering over it shows no tooltip — this is fine; add guidance as time allows.
+Three prompts per topic is the convention. Groups (category headers like "Platform operations") should have a `desc` only, with an empty `prompts: []` — they're for orientation, not discussion. If a topic or group has no entry under `tooltips:`, hovering over it shows no tooltip; this is fine, add guidance as time allows.
 
-### Changing the GUIDE groups available when adding a custom topic
+If two topics share the same name on purpose (the model has one: "Capacity management", which appears under both Process and Technology with different intent), the tool detects this automatically from the tree and shows a notice on hover pointing to the other location — no extra configuration needed.
 
-The dropdown in the "Add topic" modal is driven by `PILLAR_GROUPS` near the top of the script block:
+### Changing the groups available when adding a custom topic
+
+The dropdown in the "Add topic" modal is driven by `PILLAR_GROUPS` near the top of the script block in `index.html`:
 
 ```js
 const PILLAR_GROUPS = {
-  People:     ['Community of practice'],
-  Process:    ['Platform operations', 'Onboarding', 'Development process'],
-  Technology: ['Platform infrastructure', 'Developer experience', 'Configuration standards', 'Enablement'],
-  Governance: ['Brand'],
-  Strategy:   []
+  People:     ['Community of practice', 'Brand'],
+  Process:    ['Platform operations', 'Onboarding', 'Development process', 'Governance'],
+  Technology: ['Platform infrastructure', 'Developer experience', 'Configuration standards', 'Enablement']
 };
 ```
 
-Add or rename entries here to match any structural changes to `BASE_DATA`.
+Add or rename entries here to match any structural changes you make to the `tree:` section of `data.yaml`. As of v4.0.0 there are only three pillars — People, Process, and Technology.
 
 ### Changing colours and theme
 
@@ -199,6 +204,9 @@ const PAL = {
   advanced: { f:'#F4C5BE', s:'#C9190B', t:'#7D1007' },
   done:     { f:'#BDE5B8', s:'#3E8635', t:'#1E4F18' },
   planned:  { f:'#FCF7E0', s:'#F0AB00', t:'#795600' },
+  risk:     { f:'#FFE0B2', s:'#C9590C', t:'#6E3000' },
+  gap:      { f:'#E8F6F4', s:'#007A6F', t:'#00443D' },  // "Not Considered"
+  na:       { f:'#F4F4F4', s:'#6A6E73', t:'#3C3F42' },  // "Not Relevant"
 };
 ```
 
@@ -238,11 +246,11 @@ The underlying model is maintained at [ansible-ops-model.gitlab.io](https://ansi
 
 ## Design decisions
 
-**Why a single HTML file?**
-Contributors to this project are primarily Ansible practitioners and Red Hat consultants, not web developers. A single file with no build step means anyone can open a pull request without needing Node, npm, or any toolchain. The file can also be downloaded and used completely offline, which matters in workshop contexts where internet access is unreliable.
+**Why no build step?**
+Contributors to this project are primarily Ansible practitioners and Red Hat consultants, not web developers. No build pipeline means anyone can open a pull request without needing Node, npm, or any toolchain.
 
-**Why is topic data embedded in JavaScript rather than a separate JSON file?**
-For the same reason — a separate JSON file would require a local server to load (browser same-origin policy blocks `fetch()` for local files). Embedding it in the script makes the file self-contained. Future versions hosted on GitHub Pages could separate the data into `data/topics.json` and `data/guide.json` since they would always be served over HTTP.
+**Why is topic data in a separate `data.yaml` file rather than embedded in the script?**
+Up to v3.0.0 it was embedded, specifically so the tool could be downloaded and used completely offline by double-clicking `index.html` — no local server, which matters in workshop contexts where internet access is unreliable. As of v4.0.0, topic data has moved to `data.yaml`, loaded via `fetch()` at runtime. This trades away true zero-step offline use (you now need a local server — see "Running locally" above) in exchange for topic data that is far easier for non-developer contributors to read and edit: a nested YAML list and a flat lookup of descriptions/prompts, instead of a large JavaScript object literal. Given most real-world use is either hosted (GitHub Pages, always served over HTTP) or run from a laptop that can trivially run `python3 -m http.server`, this was judged worth it. See `CHANGELOG.md` for more detail.
 
 **Why Red Hat branding?**
 This tool was built by the Red Hat EMEA Ansible Launch Team and uses the Red Hat / PatternFly design system. The branding can be changed by swapping `logo.svg` and updating the CSS variables — the tool itself is model-agnostic.

@@ -1,4 +1,8 @@
 tooltips:
+  Platform operations:
+    desc: "The day-to-day operational processes that keep the AAP platform running reliably — incidents, life cycle, backups, upgrades, capacity, and disaster recovery."
+    prompts: []
+
   Incident management:
     desc: "A standard process for managing technical incidents — what happens when something breaks, who is responsible, and how it is resolved."
     prompts:
@@ -28,11 +32,11 @@ tooltips:
       - "What is the rollback plan if an upgrade goes wrong halfway through?"
 
   Capacity management:
-    desc: "Monitoring platform capacity and acting when expansion is needed. At MVP this process is typically manual."
+    desc: "This appears twice in the model: as a Process topic (the organisational steps — is a team required, what's the lead time, is there a change process to add capacity) and as a Technology topic (the platform's own ability to monitor and report on capacity). At MVP both are typically manual."
     prompts:
       - "How would you know today if your AAP cluster was running out of capacity?"
-      - "Who decides when to add more execution nodes — and what triggers that decision?"
-      - "Do you have current visibility into job queue depth or execution node load?"
+      - "If you needed to add capacity, is a dedicated team required, and what's the realistic lead time?"
+      - "Is there a change process to follow before capacity is added, or can it happen ad hoc?"
 
   Disaster recovery:
     desc: "A tested process for recovering from major failures — including complete loss of the platform. Essential once significant automation is running through AAP."
@@ -47,6 +51,10 @@ tooltips:
       - "How many external systems currently integrate with AAP — do you know the full list?"
       - "What happens when an integration breaks — who is notified, who owns the fix?"
       - "How do you prevent ad-hoc integrations from creating a spaghetti architecture?"
+
+  Onboarding:
+    desc: "The process for bringing new teams onto the platform, from manual first steps through to automated, skills-based onboarding paths."
+    prompts: []
 
   Basic onboarding:
     desc: "Simple, manual onboarding for new teams: creating LDAP groups, AAP organisations, git repos, and providing access to the landing page."
@@ -202,6 +210,10 @@ tooltips:
       - "What would a sandbox environment need to look like to be a realistic practice space?"
       - "Who decides when someone is ready to move from sandbox to production access?"
 
+  Development process:
+    desc: "The standards and pipeline that govern how automation is written, reviewed, tested, and deployed."
+    prompts: []
+
   Documentation:
     desc: "A requirement that automation is documented — what it does, how to use it, and how to maintain it."
     prompts:
@@ -251,6 +263,10 @@ tooltips:
       - "How much do your developers need to know before they can write and ship their first role?"
       - "What would 'zero to running automation in 30 minutes' look like for a new developer?"
 
+  Platform infrastructure:
+    desc: "The technical foundations of the platform itself — availability, security, monitoring, and how it scales and recovers."
+    prompts: []
+
   Availability:
     desc: "Designing the platform to meet availability requirements. Reference the Red Hat tested topologies for appropriate deployment models."
     prompts:
@@ -299,6 +315,10 @@ tooltips:
       - "Which operational tasks on your platform still require a human to log in and do something manually?"
       - "What is your confidence threshold before you trust automation to take a remediation action without a human?"
       - "What would 'lights-out platform operations' mean for your team's working day?"
+
+  Developer experience:
+    desc: "The tools and conventions that make it easy for automation developers to write, test, and ship Ansible content."
+    prompts: []
 
   Git:
     desc: "Version control as the foundation of automation development. Git is the industry standard — all automation should be built around it."
@@ -370,6 +390,10 @@ tooltips:
       - "How do you decide whether to build a custom feature versus finding a community alternative?"
       - "Who would own and maintain custom-built features — and is that sustainable?"
 
+  Configuration standards:
+    desc: "How the AAP platform itself is configured — organisations, projects, inventories, credentials, templates, and access control."
+    prompts: []
+
   Organisations:
     desc: "Design decision: how to use AAP organisations. One team per organisation is a popular choice that simplifies RBAC and reduces blast radius."
     prompts:
@@ -440,6 +464,10 @@ tooltips:
       - "Is any of your current AAP configuration only in the UI, with no code representation?"
       - "What would you tackle first if you were starting to implement configuration as code for AAP?"
 
+  Enablement:
+    desc: "The documentation, training, and support resources that help platform users find their feet and keep learning."
+    prompts: []
+
   Landing page:
     desc: "A starting point for new platform users — typically a wiki or internal web page with documentation, process descriptions, and useful links."
     prompts:
@@ -489,6 +517,10 @@ tooltips:
       - "Is there budget for paid Red Hat training — and is it used?"
       - "Do you have a preferred learning path combining internal and external resources?"
 
+  Governance:
+    desc: "The planning, agreements, and measurement practices that keep the platform's roadmap and performance visible and accountable."
+    prompts: []
+
   SLA:
     desc: "Defining the SLA for the AAP platform — uptime commitments, support hours, and response times."
     prompts:
@@ -523,6 +555,10 @@ tooltips:
       - "What metrics do you currently track for the platform?"
       - "Are your KPIs connected to business outcomes, or just technical metrics?"
       - "How do you make the impact of automation visible to people outside the platform team?"
+
+  Brand:
+    desc: "The optional identity elements — name, logo, merchandise — that build visibility and pride around the automation platform."
+    prompts: []
 
   Name:
     desc: "Giving your platform a catchy, memorable name that people can refer to — building identity around the automation programme."
@@ -600,6 +636,10 @@ tooltips:
       - "Who makes architectural decisions for automation in your organisation — and is that role clearly defined?"
       - "When a new team wants to integrate with AAP, who evaluates the design and signs it off?"
       - "Has a lack of architectural oversight ever led to a technical problem that was expensive to fix?"
+
+  Community of practice:
+    desc: "The people, channels, and meeting cadence that turn isolated automation efforts into a connected practice across the organisation."
+    prompts: []
 
   Core team:
     desc: "The core team of the Community of Practice — typically the product owner and platform engineers, potentially joined by experienced community members."
@@ -700,6 +740,20 @@ tree:
           level: advanced
         - name: Contribution recognition
           level: advanced
+        - name: "Budget & ownership"
+          level: advanced
+        - name: Skills development
+          level: advanced
+        - name: Brand
+          type: group
+          level: "2.0"
+          children:
+            - name: Name
+              level: "2.0"
+            - name: Logo
+              level: "2.0"
+            - name: Merchandise
+              level: "2.0"
 
     - name: Process
       type: pillar
@@ -793,6 +847,23 @@ tree:
               level: advanced
             - name: Integrated dev platform
               level: advanced
+        - name: Governance
+          type: group
+          children:
+            - name: SLA
+              level: mvp
+            - name: OLA
+              level: mvp
+            - name: Feature planning
+              level: mvp
+            - name: Success plan
+              level: "2.0"
+            - name: KPIs
+              level: "2.0"
+            - name: Performance monitoring
+              level: advanced
+            - name: Key processes
+              level: advanced
 
     - name: Technology
       type: pillar
@@ -879,41 +950,5 @@ tree:
               level: "2.0"
             - name: External training
               level: "2.0"
-
-    - name: Governance
-      type: pillar
-      children:
-        - name: SLA
-          level: mvp
-        - name: OLA
-          level: mvp
-        - name: Feature planning
-          level: mvp
-        - name: Success plan
-          level: "2.0"
-        - name: KPIs
-          level: "2.0"
-        - name: Brand
-          type: group
-          level: "2.0"
-          children:
-            - name: Name
-              level: "2.0"
-            - name: Logo
-              level: "2.0"
-            - name: Merchandise
-              level: "2.0"
-
-    - name: Strategy
-      type: pillar
-      children:
-        - name: Performance monitoring
-          level: advanced
-        - name: "Budget & ownership"
-          level: advanced
         - name: Tools strategy
-          level: advanced
-        - name: Skills development
-          level: advanced
-        - name: Key processes
           level: advanced

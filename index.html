@@ -61,6 +61,8 @@ button.on{background:var(--rh-black);color:var(--rh-white);border-color:var(--rh
 .done-btn.on{background:var(--rh-green);border-color:var(--rh-green);color:#fff}
 .plan-btn.on{background:#795600;border-color:#795600;color:#fff}
 .risk-btn.on{background:#C9590C;border-color:#C9590C;color:#fff}
+.na-btn.on{background:var(--rh-gray-mid);border-color:var(--rh-gray-mid);color:#fff}
+.gap-btn.on{background:#007A6F;border-color:#007A6F;color:#fff}
 .mvp-btn.on{background:#795600;border-color:#795600;color:#fff}
 .t20-btn.on{background:var(--rh-blue-dark);border-color:var(--rh-blue-dark);color:#fff}
 .adv-btn.on{background:var(--rh-red-dark);border-color:var(--rh-red-dark);color:#fff}
@@ -81,6 +83,29 @@ button.on{background:var(--rh-black);color:var(--rh-white);border-color:var(--rh
 .saved-ind{font-size:11px;color:var(--rh-green);opacity:0;font-weight:500}
 .saved-ind.show{opacity:1;transition:opacity .3s}
 
+/* ── Coverage progress ── */
+.coverage-wrap{background:var(--rh-white);border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);padding:10px 16px;margin-bottom:10px}
+.coverage-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.coverage-title{font-family:var(--rh-font-display);font-size:13px;font-weight:700;color:var(--rh-black)}
+.coverage-pct{font-family:var(--rh-font-display);font-size:20px;font-weight:700;color:var(--rh-black)}
+.coverage-track{display:flex;height:12px;border-radius:6px;background:var(--rh-gray-100);overflow:hidden}
+.coverage-seg{height:100%;transition:width .25s}
+.seg-done{background:var(--rh-green)}
+.seg-plan{background:#F0AB00}
+.seg-risk{background:#C9590C}
+.seg-gap{background:#007A6F}
+.seg-na{background:#6A6E73}
+.seg-recl{background:var(--rh-gray-dark)}
+.coverage-sub{font-size:11px;color:var(--rh-gray-mid);margin-top:7px;display:flex;gap:12px;flex-wrap:wrap}
+.coverage-sub span{display:flex;align-items:center;gap:4px}
+.coverage-sub .dot{width:7px;height:7px;border-radius:1px;flex-shrink:0}
+.coverage-pillars{display:flex;flex-direction:column;gap:7px;margin-top:12px;padding-top:10px;border-top:1px solid var(--rh-gray-100)}
+.coverage-pillar-row{display:flex;flex-direction:column;gap:3px}
+.coverage-pillar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--rh-gray-dark)}
+.coverage-pillar-name{font-weight:500}
+.coverage-pillar-pct{color:var(--rh-gray-mid)}
+.coverage-track-sm{height:7px;border-radius:4px}
+
 /* ── Tree wrapper ── */
 .tree-wrap{overflow-x:auto;width:100%;border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);background:var(--rh-white);margin-top:8px}
 
@@ -100,7 +125,7 @@ thead th{padding:6px 10px;text-align:left;font-size:11px;font-weight:500;color:v
 tbody tr{border-bottom:1px solid var(--rh-gray-100)}
 tbody tr:last-child{border-bottom:none}
 tbody td{padding:5px 10px;vertical-align:middle}
-tr.r-done{background:#F2FAF0} tr.r-plan{background:#FCF7E0} tr.r-risk{background:#FFF3E8}
+tr.r-done{background:#F2FAF0} tr.r-plan{background:#FCF7E0} tr.r-risk{background:#FFF3E8} tr.r-na{background:#F4F4F4} tr.r-gap{background:#E8F6F4}
 tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FEF0EE}
 .lvl-pill{font-size:10px;padding:1px 6px;border-radius:var(--rh-radius);white-space:nowrap;display:inline-block;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
 .lvl-mvp{background:var(--rh-gold-light);color:#795600}
@@ -111,6 +136,8 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
 .ann-done{color:var(--rh-green);font-weight:500}
 .ann-plan{color:#795600;font-weight:500}
 .ann-risk{color:#9C4A00;font-weight:500}
+.ann-na{color:var(--rh-gray-light);font-weight:500}
+.ann-gap{color:#007A6F;font-weight:500}
 .ann-recl{color:var(--rh-gray-mid);font-weight:500}
 .ann-none{color:var(--rh-gray-200)}
 .no-rows{padding:20px;text-align:center;color:var(--rh-gray-light);font-size:12px}
@@ -146,6 +173,8 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
 .pri-ann-done{color:var(--rh-green)}
 .pri-ann-plan{color:#795600}
 .pri-ann-risk{color:#9C4A00}
+.pri-ann-na{color:var(--rh-gray-light)}
+.pri-ann-gap{color:#007A6F}
 .pri-ann-recl{color:var(--rh-gray-mid)}
 .no-pri{font-size:12px;color:var(--rh-gray-light);padding:8px 0;text-align:center}
 
@@ -169,17 +198,10 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
 #tooltip .tt-ql{font-size:10px;font-weight:500;color:var(--rh-gray-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
 #tooltip .tt-prompt{font-size:11px;color:var(--rh-gray-dark);line-height:1.55;padding:3px 0 3px 10px;border-left:2px solid var(--rh-red);margin-bottom:4px}
 #tooltip .tt-custom{font-size:10px;color:var(--rh-white);background:var(--rh-blue-dark);padding:2px 7px;border-radius:var(--rh-radius);display:inline-block;margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+#tooltip .tt-dup{font-size:10.5px;color:#795600;background:#FCF7E0;border:1px solid #F0AB00;border-radius:var(--rh-radius);padding:5px 8px;line-height:1.5;margin-bottom:10px}
 
 /* ── Drop zone ── */
 #importInput{display:none}
-#drop-zone{display:none;border:2px dashed var(--rh-gray-200);border-radius:var(--rh-radius);padding:36px 24px;text-align:center;background:var(--rh-white);cursor:pointer;margin-bottom:12px;transition:border-color .15s,background .15s}
-#drop-zone.visible{display:block}
-#drop-zone:hover,#drop-zone.drag-active{border-color:var(--rh-red);background:#FFF5F5}
-#drop-zone .dz-icon{font-size:32px;margin-bottom:8px}
-#drop-zone .dz-title{font-family:var(--rh-font-display);font-size:15px;font-weight:700;color:var(--rh-black);margin-bottom:4px}
-#drop-zone .dz-sub{font-size:12px;color:var(--rh-gray-mid)}
-#drop-zone .dz-btn{display:inline-block;margin-top:14px;font-size:12px;padding:6px 18px;border-radius:var(--rh-radius);border:1px solid var(--rh-red);background:var(--rh-red);color:#fff;cursor:pointer;font-family:var(--rh-font-text);font-weight:500}
-#drop-zone .dz-btn:hover{background:var(--rh-red-dark);border-color:var(--rh-red-dark)}
 
 /* ── Page drop overlay ── */
 #page-drop-overlay{display:none;position:fixed;inset:0;background:rgba(21,21,21,.45);z-index:300;pointer-events:none;align-items:center;justify-content:center}
@@ -241,7 +263,7 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
   <div class="rh-divider"></div>
   <span class="rh-title">Operational Model for Ansible</span>
   <div class="rh-header-right">
-    <span class="rh-header-tag">v3.0.0</span>
+    <span class="rh-header-tag">v4.0.0</span>
     <button onclick="toggleHelp()" style="font-size:11px;padding:2px 9px;border-radius:99px;border:1px solid var(--rh-gray-dark);background:transparent;color:var(--rh-gray-300);cursor:pointer;font-family:var(--rh-font-text)" title="Show help">? Help</button>
   </div>
 </header>
@@ -269,6 +291,8 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
   <button class="mbtn done-btn" onclick="setMode('done',this)">✓ Have this</button>
   <button class="mbtn plan-btn" onclick="setMode('planned',this)">◑ Planned</button>
   <button class="mbtn risk-btn" onclick="setMode('risk',this)">⚠ Risk</button>
+  <button class="mbtn gap-btn" onclick="setMode('gap',this)">? Not Considered</button>
+  <button class="mbtn na-btn" onclick="setMode('na',this)">⊘ Not Relevant</button>
   <div class="sep"></div>
   <span class="lbl">Reclassify:</span>
   <button class="mbtn mvp-btn" onclick="setMode('mvp',this)">MVP</button>
@@ -305,20 +329,23 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
 
 </div><!-- /toolbar -->
 
+<!-- Coverage progress -->
+<div class="coverage-wrap" id="coverageWrap" style="display:none">
+  <div class="coverage-top">
+    <span class="coverage-title">Workshop progress</span>
+    <span class="coverage-pct" id="coveragePct">0%</span>
+  </div>
+  <div class="coverage-track" id="coverageTrack"></div>
+  <div class="coverage-sub" id="coverageSub"></div>
+  <div class="coverage-pillars" id="coveragePillars"></div>
+</div>
+
 <!-- Page-level drop overlay (shown when dragging a file over the window) -->
 <div id="page-drop-overlay">
   <div class="pdo-inner">
     <div style="font-size:36px">📂</div>
     <p>Drop snapshot or session JSON to load</p>
   </div>
-</div>
-
-<!-- Drop zone (shown when no session is active) -->
-<div id="drop-zone" onclick="document.getElementById('importInput').click()">
-  <div class="dz-icon">📂</div>
-  <div class="dz-title">Continue a previous session</div>
-  <div class="dz-sub">Drop a snapshot or session JSON file here, or click to browse</div>
-  <span class="dz-btn">Browse for file</span>
 </div>
 
 <!-- Legend -->
@@ -333,6 +360,8 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
   <div class="li"><div class="sq" style="background:#BDE5B8;border:1px solid #3E8635"></div>Have this</div>
   <div class="li"><div class="sq" style="background:#FCF7E0;border:1px solid #F0AB00"></div>Planned</div>
   <div class="li"><div class="sq" style="background:#FFE0B2;border:1px solid #C9590C"></div>Risk</div>
+  <div class="li"><div class="sq" style="background:#E8F6F4;border:1px solid #007A6F"></div>Not Considered</div>
+  <div class="li"><div class="sq" style="background:#F4F4F4;border:1px solid #6A6E73"></div>Not Relevant</div>
 </div>
 
 <div id="status">
@@ -352,6 +381,8 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
     <button class="ph-btn" onclick="setSumFilter('done',this)">✓ Have this</button>
     <button class="ph-btn" onclick="setSumFilter('planned',this)">◑ Planned</button>
     <button class="ph-btn" onclick="setSumFilter('risk',this)">⚠ Risk</button>
+    <button class="ph-btn" onclick="setSumFilter('gap',this)">? Not Considered</button>
+    <button class="ph-btn" onclick="setSumFilter('na',this)">⊘ Not Relevant</button>
     <button class="ph-btn" onclick="setSumFilter('recl',this)">↕ Reclassified</button>
     <button class="ph-btn" onclick="setSumFilter('none',this)">Not marked</button>
   </div>
@@ -393,6 +424,8 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
       <button class="ph-btn" onclick="setPriFilter('done',this)">✓ Have this</button>
       <button class="ph-btn" onclick="setPriFilter('planned',this)">◑ Planned</button>
       <button class="ph-btn" onclick="setPriFilter('risk',this)">⚠ Risk</button>
+      <button class="ph-btn" onclick="setPriFilter('gap',this)">? Not Considered</button>
+      <button class="ph-btn" onclick="setPriFilter('na',this)">⊘ Not Relevant</button>
       <button class="ph-btn" onclick="setPriFilter('recl',this)">↕ Reclassified</button>
     </div>
     <div class="pri-list" id="pri-list"></div>
@@ -422,6 +455,8 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
         <li><strong>✓ Have this</strong> — mark topics your organisation already has in place</li>
         <li><strong>◑ Planned</strong> — mark topics on your roadmap</li>
         <li><strong>⚠ Risk</strong> — flag topics that pose a risk to your organisation</li>
+        <li><strong>⊘ Not Relevant</strong> — mark a topic as discussed and not relevant, so it's distinct from one you haven't covered yet</li>
+        <li><strong>? Not Considered</strong> — mark a topic the customer has genuinely never thought about before — a real gap, distinct from Not Relevant</li>
         <li><strong>MVP / 2.0 / Advanced</strong> — reclassify a topic's maturity level</li>
         <li><strong>✕ Clear</strong> — remove an annotation from a node</li>
       </ul>
@@ -456,7 +491,6 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
       <select id="at-pillar" onchange="updateGroupList()">
         <option value="">— select pillar —</option>
         <option>People</option><option>Process</option><option>Technology</option>
-        <option>Governance</option><option>Strategy</option>
       </select>
     </div>
     <div class="form-row">
@@ -488,6 +522,7 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
   <div id="tt-custom-badge" class="tt-custom" style="display:none">Custom topic</div>
   <h3 id="tt-title"></h3>
   <p class="tt-desc" id="tt-desc"></p>
+  <div class="tt-dup" id="tt-dup" style="display:none"></div>
   <div class="tt-ql" id="tt-ql-head" style="display:none">Discussion prompts</div>
   <div id="tt-prompts"></div>
 </div>
@@ -509,6 +544,8 @@ const PAL = {
   done:     {f:'#BDE5B8',s:'#3E8635',t:'#1E4F18'},
   planned:  {f:'#FCF7E0',s:'#F0AB00',t:'#795600'},
   risk:     {f:'#FFE0B2',s:'#C9590C',t:'#6E3000'},
+  na:       {f:'#F4F4F4',s:'#6A6E73',t:'#3C3F42'},
+  gap:      {f:'#E8F6F4',s:'#007A6F',t:'#00443D'},
   custom:   {f:'#E8DAFF',s:'#6753AC',t:'#2A185A'}
 };
 
@@ -529,14 +566,13 @@ const LAY = d3.tree().nodeSize([NW+14,VS]);
 const SV  = d3.select('#sv');
 const G   = SV.append('g');
 let ROOT;
+let DUPLICATE_NAMES = {}; // name → [{path, pillar, group, level}] for leaf topics sharing a name
 
 // ─── Group map for add-topic ──────────────────────────────────────────────
 const PILLAR_GROUPS = {
-  People:     ['Community of practice'],
-  Process:    ['Platform operations','Onboarding','Development process'],
-  Technology: ['Platform infrastructure','Developer experience','Configuration standards','Enablement'],
-  Governance: ['Brand'],
-  Strategy:   []
+  People:     ['Community of practice','Brand'],
+  Process:    ['Platform operations','Onboarding','Development process','Governance'],
+  Technology: ['Platform infrastructure','Developer experience','Configuration standards','Enablement']
 };
 
 // ─── LocalStorage ─────────────────────────────────────────────────────────
@@ -588,6 +624,19 @@ function buildRoot() {
   eachAll(ROOT, d=>{
     if (d.depth>=1 && d.children){ d._children=d.children; d.children=null; }
   });
+  computeDuplicateNames();
+}
+function computeDuplicateNames(){
+  const occ={};
+  eachAll(ROOT, d=>{
+    if(d.depth===0||d.data.type==='pillar'||d.data.type==='group')return;
+    const ancs=d.ancestors().reverse();
+    const pillar=ancs[1]?ancs[1].data.name:'';
+    const group=d.parent&&d.parent.data.type==='group'?d.parent.data.name:'';
+    (occ[d.data.name]=occ[d.data.name]||[]).push({path:nodePath(d),pillar,group,level:d.data.level||''});
+  });
+  DUPLICATE_NAMES={};
+  Object.entries(occ).forEach(([name,list])=>{ if(list.length>1) DUPLICATE_NAMES[name]=list; });
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
@@ -603,6 +652,8 @@ function getColor(d){
   if(ann==='done')return PAL.done;
   if(ann==='planned')return PAL.planned;
   if(ann==='risk')return PAL.risk;
+  if(ann==='na')return PAL.na;
+  if(ann==='gap')return PAL.gap;
   if(ann&&PAL[ann])return PAL[ann];
   if(d.data.custom)return PAL.custom;
   const t=d.data.type;
@@ -626,20 +677,75 @@ function toggle(d){
 function lvlOrder(lvl){return lvl==='mvp'?0:lvl==='2.0'?1:lvl==='advanced'?2:3;}
 
 // ─── Status ───────────────────────────────────────────────────────────────
+function getCoverageBreakdown(){
+  const overall={total:0,done:0,planned:0,risk:0,gap:0,na:0,recl:0};
+  const pillars=[];
+  if(!ROOT) return{overall,pillars};
+  (ROOT.children||[]).forEach(pillarNode=>{
+    const p={name:pillarNode.data.name,total:0,done:0,planned:0,risk:0,gap:0,na:0,recl:0};
+    eachAll(pillarNode,d=>{
+      if(d.data.type==='pillar'||d.data.type==='group')return;
+      p.total++;
+      const ann=ANN[nodePath(d)];
+      if(!ann)return;
+      if(ann==='done')p.done++;
+      else if(ann==='planned')p.planned++;
+      else if(ann==='risk')p.risk++;
+      else if(ann==='gap')p.gap++;
+      else if(ann==='na')p.na++;
+      else p.recl++;
+    });
+    pillars.push(p);
+    Object.keys(overall).forEach(k=>overall[k]+=p[k]);
+  });
+  return{overall,pillars};
+}
+function coverageTrackHTML(p){
+  const seg=n=>p.total?(n/p.total*100):0;
+  return`<div class="coverage-seg seg-done" style="width:${seg(p.done)}%"></div>
+    <div class="coverage-seg seg-plan" style="width:${seg(p.planned)}%"></div>
+    <div class="coverage-seg seg-risk" style="width:${seg(p.risk)}%"></div>
+    <div class="coverage-seg seg-gap" style="width:${seg(p.gap)}%"></div>
+    <div class="coverage-seg seg-na" style="width:${seg(p.na)}%"></div>
+    <div class="coverage-seg seg-recl" style="width:${seg(p.recl)}%"></div>`;
+}
 function updateStatus(){
-  const vals=Object.values(ANN);
-  const done=vals.filter(v=>v==='done').length;
-  const plan=vals.filter(v=>v==='planned').length;
-  const risk=vals.filter(v=>v==='risk').length;
-  const recl=vals.filter(v=>v!=='done'&&v!=='planned'&&v!=='risk').length;
+  const {overall,pillars}=getCoverageBreakdown();
+  const {total,done,planned:plan,risk,gap,na,recl}=overall;
+  const tagged=done+plan+risk+gap+na+recl;
   const parts=[];
   if(done)parts.push(`✓ ${done} have this`);
   if(plan)parts.push(`◑ ${plan} planned`);
   if(risk)parts.push(`⚠ ${risk} risk`);
+  if(gap)parts.push(`? ${gap} not considered`);
+  if(na)parts.push(`⊘ ${na} not relevant`);
   if(recl)parts.push(`↕ ${recl} reclassified`);
   document.getElementById('statusText').textContent = parts.length
     ? parts.join('  ·  ')
     : 'Select a mode then click nodes to annotate · hover a leaf for guidance';
+  const cw=document.getElementById('coverageWrap');
+  if(!cw)return;
+  if(total===0){cw.style.display='none';return;}
+  cw.style.display='block';
+  const pct=Math.round(tagged/total*100);
+  document.getElementById('coveragePct').textContent=`${pct}%`;
+  document.getElementById('coverageTrack').innerHTML=coverageTrackHTML(overall);
+  const subParts=[`<span>${tagged} / ${total} topics tagged</span>`];
+  if(done)subParts.push(`<span><span class="dot" style="background:var(--rh-green)"></span>${done} have this</span>`);
+  if(plan)subParts.push(`<span><span class="dot" style="background:#F0AB00"></span>${plan} planned</span>`);
+  if(risk)subParts.push(`<span><span class="dot" style="background:#C9590C"></span>${risk} risk</span>`);
+  if(gap)subParts.push(`<span><span class="dot" style="background:#007A6F"></span>${gap} not considered</span>`);
+  if(na)subParts.push(`<span><span class="dot" style="background:#6A6E73"></span>${na} not relevant</span>`);
+  if(recl)subParts.push(`<span><span class="dot" style="background:var(--rh-gray-dark)"></span>${recl} reclassified</span>`);
+  document.getElementById('coverageSub').innerHTML=subParts.join('');
+  document.getElementById('coveragePillars').innerHTML=pillars.map(p=>{
+    const pTagged=p.done+p.planned+p.risk+p.gap+p.na+p.recl;
+    const pPct=p.total?Math.round(pTagged/p.total*100):0;
+    return`<div class="coverage-pillar-row">
+      <div class="coverage-pillar-label"><span class="coverage-pillar-name">${p.name}</span><span class="coverage-pillar-pct">${pTagged}/${p.total} (${pPct}%)</span></div>
+      <div class="coverage-track coverage-track-sm">${coverageTrackHTML(p)}</div>
+    </div>`;
+  }).join('');
 }
 
 // ─── Controls ─────────────────────────────────────────────────────────────
@@ -665,7 +771,6 @@ function resetAll(){
   saveState();
   refreshPanels();
   draw();
-  updateDropZone();
 }
 
 // ─── Panel toggle ─────────────────────────────────────────────────────────
@@ -720,6 +825,8 @@ function annLabel(ann){
   if(ann==='done')return'✓ Have this';
   if(ann==='planned')return'◑ Planned';
   if(ann==='risk')return'⚠ Risk';
+  if(ann==='gap')return'? Not Considered';
+  if(ann==='na')return'⊘ Not Relevant';
   if(ann==='mvp')return'↕ → MVP';
   if(ann==='2.0')return'↕ → 2.0';
   if(ann==='advanced')return'↕ → Advanced';
@@ -739,7 +846,9 @@ function buildSummaryTable(){
     if(SUM_FILTER==='done')return r.ann==='done';
     if(SUM_FILTER==='planned')return r.ann==='planned';
     if(SUM_FILTER==='risk')return r.ann==='risk';
-    if(SUM_FILTER==='recl')return r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk';
+    if(SUM_FILTER==='gap')return r.ann==='gap';
+    if(SUM_FILTER==='na')return r.ann==='na';
+    if(SUM_FILTER==='recl')return r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk'&&r.ann!=='gap'&&r.ann!=='na';
     if(SUM_FILTER==='none')return!r.ann;
     return true;
   });
@@ -750,9 +859,9 @@ function buildSummaryTable(){
   noRow.style.display='none';
   filtered.forEach(r=>{
     const tr=document.createElement('tr');
-    const rowCls=r.ann==='done'?'r-done':r.ann==='planned'?'r-plan':r.ann==='risk'?'r-risk':r.ann==='mvp'?'r-mvp':r.ann==='2.0'?'r-20':r.ann==='advanced'?'r-adv':'';
+    const rowCls=r.ann==='done'?'r-done':r.ann==='planned'?'r-plan':r.ann==='risk'?'r-risk':r.ann==='gap'?'r-gap':r.ann==='na'?'r-na':r.ann==='mvp'?'r-mvp':r.ann==='2.0'?'r-20':r.ann==='advanced'?'r-adv':'';
     if(rowCls)tr.className=rowCls;
-    const annCls=r.ann==='done'?'ann-done':r.ann==='planned'?'ann-plan':r.ann==='risk'?'ann-risk':r.ann?'ann-recl':'ann-none';
+    const annCls=r.ann==='done'?'ann-done':r.ann==='planned'?'ann-plan':r.ann==='risk'?'ann-risk':r.ann==='gap'?'ann-gap':r.ann==='na'?'ann-na':r.ann?'ann-recl':'ann-none';
     const nameStyle=r.dtype==='pillar'?'font-weight:500;color:#085041':r.dtype==='group'?'color:#5F5E5A;font-style:italic':'color:#222';
     const isDT=r.dtype!=='pillar'&&r.dtype!=='group';
     tr.innerHTML=`<td class="${annCls}">${annLabel(r.ann)||'—'}</td>
@@ -878,7 +987,9 @@ function buildPriorityPanel(){
     if(PRI_FILTER==='done')return r.ann==='done';
     if(PRI_FILTER==='planned')return r.ann==='planned';
     if(PRI_FILTER==='risk')return r.ann==='risk';
-    if(PRI_FILTER==='recl')return r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk';
+    if(PRI_FILTER==='gap')return r.ann==='gap';
+    if(PRI_FILTER==='na')return r.ann==='na';
+    if(PRI_FILTER==='recl')return r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk'&&r.ann!=='gap'&&r.ann!=='na';
     return true;
   });
   // Sort by priority order first, then by maturity level
@@ -906,7 +1017,7 @@ function buildPriorityPanel(){
       list.appendChild(gh);
       lastLvl=item.level;
     }
-    const annCls=item.ann==='done'?'pri-ann-done':item.ann==='planned'?'pri-ann-plan':item.ann==='risk'?'pri-ann-risk':'pri-ann-recl';
+    const annCls=item.ann==='done'?'pri-ann-done':item.ann==='planned'?'pri-ann-plan':item.ann==='risk'?'pri-ann-risk':item.ann==='gap'?'pri-ann-gap':item.ann==='na'?'pri-ann-na':'pri-ann-recl';
     const div=document.createElement('div');
     div.className='pri-item';
     div.setAttribute('draggable','true');
@@ -946,7 +1057,7 @@ function exportPriorityCSV(){
     if(oa!==ob)return oa-ob;
     return lvlOrder(a.level)-lvlOrder(b.level);
   });
-  const filtered=allItems.filter(r=>PRI_FILTER==='all'||r.ann===PRI_FILTER||(PRI_FILTER==='recl'&&r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk'));
+  const filtered=allItems.filter(r=>PRI_FILTER==='all'||r.ann===PRI_FILTER||(PRI_FILTER==='recl'&&r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk'&&r.ann!=='gap'&&r.ann!=='na'));
   const csv=[['Priority','Pillar','Group','Topic','Level','Status'],...filtered.map((r,i)=>[i+1,r.pillar,r.group,r.name,r.level,annLabel(r.ann)])]
     .map(row=>row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   dlFile('aap-priority.csv',csv,'text/csv;charset=utf-8;');
@@ -1053,17 +1164,19 @@ function copyText(btn){
     if(r.dtype==='pillar'){out+=`\n${r.name.toUpperCase()}\n`;curPillar=r.name;curGroup='';}
     else if(r.dtype==='group'){out+=`  [${r.name}]\n`;curGroup=r.name;}
     else{
-      const pfx=r.ann==='done'?'✓':r.ann==='planned'?'◑':r.ann==='risk'?'⚠':r.ann?'↕':'·';
+      const pfx=r.ann==='done'?'✓':r.ann==='planned'?'◑':r.ann==='risk'?'⚠':r.ann==='gap'?'?':r.ann==='na'?'⊘':r.ann?'↕':'·';
       const ind=curGroup?'      ':'    ';
       const lvl=r.level?` (${r.level})`:'';
-      const sta=r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk'?` → ${r.ann}`:'';
+      const sta=r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk'&&r.ann!=='gap'&&r.ann!=='na'?` → ${r.ann}`:'';
       out+=`${ind}${pfx} ${r.name}${lvl}${sta}\n`;
     }
   });
   const done=Object.values(ANN).filter(v=>v==='done').length;
   const plan=Object.values(ANN).filter(v=>v==='planned').length;
   const risk=Object.values(ANN).filter(v=>v==='risk').length;
-  out+=`\nSummary: ${done} have this · ${plan} planned · ${risk} risk · ${Object.keys(ANN).length-done-plan-risk} reclassified\n`;
+  const gap=Object.values(ANN).filter(v=>v==='gap').length;
+  const na=Object.values(ANN).filter(v=>v==='na').length;
+  out+=`\nSummary: ${done} have this · ${plan} planned · ${risk} risk · ${gap} not considered · ${na} not relevant · ${Object.keys(ANN).length-done-plan-risk-gap-na} reclassified\n`;
   navigator.clipboard.writeText(out).then(()=>{const o=btn.textContent;btn.textContent='Copied ✓';setTimeout(()=>btn.textContent=o,2000);}).catch(()=>{
     const w=window.open('','_blank');
     w.document.write('<pre style="font-family:monospace;font-size:13px;padding:20px">'+out.replace(/</g,'&lt;')+'</pre>');
@@ -1080,6 +1193,16 @@ function showTooltip(d,mx,my){
   document.getElementById('tt-custom-badge').style.display=d.data.custom?'inline-block':'none';
   document.getElementById('tt-title').textContent=name;
   document.getElementById('tt-desc').textContent=guide.desc||'';
+  const dupEl=document.getElementById('tt-dup');
+  const dupList=DUPLICATE_NAMES[name];
+  const others=dupList?dupList.filter(o=>o.path!==nodePath(d)):[];
+  if(others.length){
+    const locs=others.map(o=>[o.pillar,o.group].filter(Boolean).join(' → ')+(o.level?` (${o.level})`:'')).join('; ');
+    dupEl.textContent=`⚠ This topic name also appears under: ${locs} — consider tagging both.`;
+    dupEl.style.display='block';
+  } else {
+    dupEl.style.display='none';
+  }
   const ql=document.getElementById('tt-ql-head');
   const pp=document.getElementById('tt-prompts');
   pp.innerHTML='';
@@ -1106,7 +1229,7 @@ function handleClick(d){
   const key=nodePath(d);
   if(MODE==='nav'){if(d.children||d._children){toggle(d);draw();}}
   else if(MODE==='clear'){delete ANN[key];updateStatus();saveState();refreshPanels();draw();}
-  else{ANN[key]=MODE;updateStatus();saveState();refreshPanels();updateDropZone();draw();}
+  else{ANN[key]=MODE;updateStatus();saveState();refreshPanels();draw();}
 }
 
 // ─── Draw ─────────────────────────────────────────────────────────────────
@@ -1170,13 +1293,15 @@ function draw(){
       t.append('tspan').attr('x',cx).attr('dy',gap).text(lines[1]);
     }
     if(isAnn){
-      const icon=ann==='done'?'✓':ann==='planned'?'◑':ann==='risk'?'⚠':'↕';
+      const icon=ann==='done'?'✓':ann==='planned'?'◑':ann==='risk'?'⚠':ann==='gap'?'?':ann==='na'?'⊘':'↕';
       ng.append('text').attr('x',6).attr('y',NH/2+1).attr('dominant-baseline','middle')
         .attr('font-size',10).attr('font-weight',500).attr('fill',c.s).attr('pointer-events','none').text(icon);
     }
-    // Hover dot for topics with guide
-    if(hasGuide&&isLeaf&&!canExpand){
+    // Hover dot for topics with guide (top-right for leaves, top-left for groups so it doesn't clash with the expand indicator)
+    if(hasGuide&&isLeaf){
       ng.append('circle').attr('cx',NW-5).attr('cy',6).attr('r',3).attr('fill',c.s).attr('opacity',0.5).attr('pointer-events','none');
+    } else if(hasGuide&&d.data.type==='group'&&d.depth>0){
+      ng.append('circle').attr('cx',6).attr('cy',6).attr('r',3).attr('fill',c.s).attr('opacity',0.5).attr('pointer-events','none');
     }
     if(canExpand){
       ng.append('text').attr('x',NW-7).attr('y',NH/2+1).attr('text-anchor','middle').attr('dominant-baseline','middle')
@@ -1199,9 +1324,22 @@ function onSearch(val) {
     draw();
     return;
   }
-  // Expand all so matches are visible
+  // Find matches first (looking through both expanded and collapsed branches)
+  const matches = [];
   eachAll(ROOT, d => {
-    if (d._children) { d.children = d._children; d._children = null; }
+    const name = (d.data.name || '').toLowerCase().replace(/\n/g, ' ');
+    if (d.depth > 0 && name.includes(searchTerm)) matches.push(d);
+  });
+  // Collapse everything below the pillars, then re-expand only the path to each match
+  eachAll(ROOT, d => {
+    if (d.depth > 0 && d.children) { d._children = d.children; d.children = null; }
+  });
+  matches.forEach(d => {
+    let node = d;
+    while (node) {
+      if (node._children) { node.children = node._children; node._children = null; }
+      node = node.parent;
+    }
   });
   draw();
   highlightSearch();
@@ -1242,6 +1380,8 @@ const MODE_LABELS = {
   done: '✓ Mode: Have this',
   planned: '◑ Mode: Planned',
   risk: '⚠ Mode: Risk',
+  gap: '? Mode: Not Considered',
+  na: '⊘ Mode: Not Relevant',
   mvp: '↕ Mode: Reclassify → MVP',
   '2.0': '↕ Mode: Reclassify → 2.0',
   advanced: '↕ Mode: Reclassify → Advanced',
@@ -1254,7 +1394,7 @@ function updateModeIndicator() {
     el.textContent = label;
     el.style.display = 'inline-block';
     const colors = {
-      done: 'var(--rh-green)', planned: '#795600', risk: '#C9590C',
+      done: 'var(--rh-green)', planned: '#795600', risk: '#C9590C', gap: '#007A6F', na: 'var(--rh-gray-mid)',
       mvp: '#795600', '2.0': 'var(--rh-blue-dark)',
       advanced: 'var(--rh-red-dark)', clear: 'var(--rh-gray-mid)'
     };
@@ -1358,7 +1498,7 @@ function landingStartNew() {
   if (hasData) {
     if (!confirm('This will clear the current session annotations. Version history and custom topics will be kept. Continue?')) return;
     ANN = {}; priorityOrder = [];
-    buildRoot(); updateStatus(); saveState(); refreshPanels(); draw(); updateDropZone();
+    buildRoot(); updateStatus(); saveState(); refreshPanels(); draw();
   }
   dismissLanding();
 }
@@ -1387,21 +1527,13 @@ document.getElementById('landing').addEventListener('drop', e => {
   buildRoot();
   draw();
   updateStatus();
-  updateDropZone();
   if(typeof updateModeIndicator === "function") updateModeIndicator();
   buildLandingCards();
 })();
 
-// ─── Drop zone visibility ─────────────────────────────────────────────────
-function updateDropZone(){
-  const hasSession=Object.keys(ANN).length>0||customNodes.length>0||versions.length>0;
-  document.getElementById('drop-zone').classList.toggle('visible',!hasSession);
-}
-
 // ─── Page-level drag and drop ─────────────────────────────────────────────
 let dragCounter=0;
 const overlay=document.getElementById('page-drop-overlay');
-const dropZoneEl=document.getElementById('drop-zone');
 
 function handleFileDrop(file, fromLanding){
   if(!file||!file.name.endsWith('.json'))return;
@@ -1419,7 +1551,7 @@ function handleFileDrop(file, fromLanding){
         if(!confirm('Load full session export? This will replace all current data including version history.'))return;
         ANN=p.ANN||{};customNodes=p.customNodes||[];versions=p.versions||[];priorityOrder=p.priorityOrder||[];
       }
-      buildRoot();updateStatus();saveState();refreshPanels();draw();updateDropZone();
+      buildRoot();updateStatus();saveState();refreshPanels();draw();
       if(fromLanding) dismissLanding();
     }catch(err){alert('Could not read the file. Make sure it is a valid AAP snapshot or session export.');}
   };
@@ -1447,13 +1579,8 @@ document.addEventListener('drop',e=>{
   handleFileDrop(file,fromLanding);
 });
 
-// Drop zone element drag events (extra visual feedback)
-dropZoneEl.addEventListener('dragover',e=>{e.preventDefault();dropZoneEl.classList.add('drag-active');});
-dropZoneEl.addEventListener('dragleave',()=>dropZoneEl.classList.remove('drag-active'));
-dropZoneEl.addEventListener('drop',e=>{e.preventDefault();dropZoneEl.classList.remove('drag-active');handleFileDrop(e.dataTransfer.files[0]);});
-
-// Also hook up the existing importInput so updateDropZone fires after file pick
-document.getElementById('importInput').addEventListener('change',()=>{setTimeout(updateDropZone,100);setTimeout(()=>{const landing=document.getElementById('landing');if(landing&&landing.style.display!=='none'&&Object.keys(ANN).length>0){dismissLanding();}},200);});
+// Also hook up the existing importInput so the landing page dismisses after file pick
+document.getElementById('importInput').addEventListener('change',()=>{setTimeout(()=>{const landing=document.getElementById('landing');if(landing&&landing.style.display!=='none'&&Object.keys(ANN).length>0){dismissLanding();}},200);});
 </script>
 </div><!-- /content -->
 </body>
