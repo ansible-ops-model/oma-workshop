@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guide: Reliance Mapping — Practice Guide</title>
+  <link rel="stylesheet" href="assets/rm-styles.css">
+  <style>
+    body { overflow: auto; }
+    .guide-wrap { max-width: 780px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+    .guide-hero { margin-bottom: 2.5rem; }
+    .guide-eyebrow { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: .6rem; }
+    .guide-hero h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.03em; line-height: 1.15; margin-bottom: .75rem; }
+    .guide-hero .guide-subtitle { font-size: 1.1rem; color: var(--ink-mid); line-height: 1.55; }
+    .guide-meta { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-top: 1rem; font-size: .78rem; color: var(--ink-light); }
+    .guide-meta span { display: flex; align-items: center; gap: .3rem; }
+    .guide-meta .meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
+
+    .guide-section { margin-bottom: 2.5rem; }
+    .guide-section h2 { font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: .5rem; }
+    .guide-section h3 { font-size: 1.05rem; font-weight: 700; margin: 1.5rem 0 .75rem; color: var(--ink); }
+    .guide-section h2 .section-tag { font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: .2em .55em; border-radius: 3px; }
+    .tag-what { background: #e8f4fd; color: #0066cc; }
+    .tag-why { background: var(--scope-stretch-bg); color: var(--scope-stretch-fg); }
+    .tag-how { background: var(--scope-in-bg); color: var(--scope-in-fg); }
+    .tag-tips { background: var(--accent-light); color: var(--accent); }
+    .tag-when { background: #f0e8fd; color: #5a2d82; }
+    .tag-who { background: #e8f4fd; color: #006e52; }
+    .tag-journey { background: #fdf0f0; color: #9a2020; }
+    .tag-after { background: var(--scope-in-bg); color: var(--scope-in-fg); }
+    .guide-section p { font-size: .95rem; color: var(--ink-mid); line-height: 1.7; margin-bottom: .9rem; }
+    .guide-section p strong { color: var(--ink); }
+    .guide-section ul, .guide-section ol { font-size: .95rem; color: var(--ink-mid); line-height: 1.7; margin-bottom: 1rem; padding-left: 1.3rem; }
+    .guide-section li { margin-bottom: .5rem; }
+    .guide-section li strong { color: var(--ink); }
+
+    .line-type-table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.25rem; font-size: .88rem; }
+    .line-type-table th { text-align: left; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-light); padding: .5rem .75rem; border-bottom: 2px solid var(--border); }
+    .line-type-table td { padding: .6rem .75rem; border-bottom: 1px solid var(--border); color: var(--ink-mid); vertical-align: middle; }
+    .line-type-table tr:last-child td { border-bottom: none; }
+    .line-sample { display: inline-block; width: 40px; height: 0; vertical-align: middle; margin-right: .4rem; }
+    .line-sample.hard { border-top: 3px solid var(--line-hard); }
+    .line-sample.soft { border-top: 3px dotted var(--line-soft); }
+    .line-sample.parallel { border-top: 3px dashed var(--line-parallel); }
+
+    .scope-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .75rem; margin: 1rem 0 1.25rem; }
+    .scope-card { border-radius: var(--radius); padding: .9rem 1rem; border-left: 4px solid; }
+    .scope-card.in { background: var(--scope-in-bg); border-color: var(--scope-in-bd); }
+    .scope-card.stretch { background: var(--scope-stretch-bg); border-color: var(--scope-stretch-bd); }
+    .scope-card.out { background: var(--scope-out-bg); border-color: var(--scope-out-bd); }
+    .scope-card h4 { font-size: .82rem; font-weight: 700; margin-bottom: .25rem; }
+    .scope-card.in h4 { color: var(--scope-in-fg); }
+    .scope-card.stretch h4 { color: var(--scope-stretch-fg); }
+    .scope-card.out h4 { color: var(--scope-out-fg); }
+    .scope-card p { font-size: .82rem; color: var(--ink-mid); line-height: 1.5; margin: 0; }
+
+    .step-list { counter-reset: steps; list-style: none; padding-left: 0; }
+    .step-list li { counter-increment: steps; display: flex; gap: .75rem; align-items: flex-start; margin-bottom: 1rem; font-size: .95rem; color: var(--ink-mid); line-height: 1.65; }
+    .step-list li::before { content: counter(steps); flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; font-size: .78rem; display: flex; align-items: center; justify-content: center; margin-top: .15rem; }
+    .step-list li strong { color: var(--ink); }
+
+    .callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1rem 1.25rem; margin: 1.25rem 0; font-size: .88rem; color: var(--ink-mid); line-height: 1.6; }
+    .callout strong { color: var(--accent-dark); }
+    .callout.callout-green { background: var(--scope-in-bg); border-color: var(--scope-in-bd); }
+    .callout.callout-green strong { color: var(--scope-in-fg); }
+    .callout.callout-amber { background: var(--scope-stretch-bg); border-color: var(--scope-stretch-bd); }
+    .callout.callout-amber strong { color: var(--scope-stretch-fg); }
+
+    .outcome-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin: 1rem 0 1.25rem; }
+    @media (max-width: 600px) { .outcome-grid { grid-template-columns: 1fr; } }
+    .outcome-item { display: flex; align-items: flex-start; gap: .5rem; font-size: .88rem; color: var(--ink-mid); line-height: 1.55; padding: .65rem .8rem; background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); }
+    .outcome-check { flex-shrink: 0; color: var(--scope-in-fg); font-weight: 700; font-size: .9rem; margin-top: .05rem; }
+
+    .role-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .75rem; margin: 1rem 0 1.25rem; }
+    .role-card { border-radius: var(--radius); padding: 1rem 1.1rem; background: var(--paper); border: 1px solid var(--border); }
+    .role-card h4 { font-size: .85rem; font-weight: 700; margin-bottom: .15rem; color: var(--ink); }
+    .role-card .role-value { font-size: .78rem; font-weight: 600; color: var(--accent); margin-bottom: .5rem; }
+    .role-card ul { font-size: .82rem; color: var(--ink-mid); line-height: 1.55; margin: 0; padding-left: 1.1rem; }
+    .role-card li { margin-bottom: .3rem; }
+
+    .materials-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    @media (max-width: 600px) { .materials-cols { grid-template-columns: 1fr; } }
+    .materials-col { background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; }
+    .materials-col h4 { font-size: .8rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-light); margin-bottom: .6rem; }
+    .materials-col ul { font-size: .88rem; color: var(--ink-mid); line-height: 1.6; margin: 0; padding-left: 1.1rem; }
+    .materials-col li { margin-bottom: .35rem; }
+
+    .links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: .75rem; margin-top: 1rem; }
+    .link-card { display: flex; flex-direction: column; gap: .3rem; padding: 1rem 1.1rem; background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); text-decoration: none; color: var(--ink); transition: border-color .15s, box-shadow .15s, transform .15s; }
+    .link-card:hover { border-color: var(--accent); box-shadow: var(--shadow-hover); transform: translateY(-2px); text-decoration: none; color: var(--ink); }
+    .link-card .lc-source { font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-light); }
+    .link-card .lc-title { font-size: .9rem; font-weight: 700; }
+    .link-card .lc-desc { font-size: .8rem; color: var(--ink-mid); line-height: 1.5; }
+
+    .guide-cta { text-align: center; padding: 2rem 1rem; margin-top: 1rem; background: var(--paper); border: 2px solid var(--border); border-radius: var(--radius); }
+    .guide-cta h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: .5rem; }
+    .guide-cta p { font-size: .9rem; color: var(--ink-mid); margin-bottom: 1rem; }
+    .guide-cta .tb-btn { display: inline-flex; font-size: .88rem; padding: .5rem 1.25rem; }
+
+    .footer { background: #1a1a1a; padding: .875rem 1.5rem; margin-top: auto; }
+    .footer-inner { max-width: 780px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; font-size: .78rem; color: #888; }
+    .footer a { color: #aaa; text-decoration: none; }
+    .footer a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <a class="topbar-back" href="../">← Workshop</a>
+        <span class="sep">|</span>
+        <a class="topbar-brand" href="./">Reliance Map</a>
+        <span class="sep">|</span>
+        <span style="color:var(--accent);font-size:.78rem;font-weight:600">Practice Guide</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="guide-wrap">
+
+      <!-- ═══════════════════════════════════════ Hero ═══════════════════════════════════════ -->
+      <div class="guide-hero">
+        <div class="guide-eyebrow">Workshop Practice</div>
+        <h1>Reliance Mapping</h1>
+        <p class="guide-subtitle">A fast, visual planning method for sequencing outcomes based on how they depend on one another. Take your agreed value outcomes and turn them into a dependency-aware, colour-coded map that the whole room can read.</p>
+        <div class="guide-meta">
+          <span>Facilitator difficulty: <strong style="color:var(--scope-stretch-fg)">Moderate</strong></span>
+          <span class="meta-dot"></span>
+          <span>Participant difficulty: <strong style="color:var(--scope-in-fg)">Easy</strong></span>
+          <span class="meta-dot"></span>
+          <span>Suggested time: 2 hours (or 2&times;1 hr sessions)</span>
+          <span class="meta-dot"></span>
+          <span>Participants: up to ~30</span>
+          <span class="meta-dot"></span>
+          <span>Phase: <strong>Discovery &rarr; Planning</strong></span>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════ What ═══════════════════════════════════════ -->
+      <div class="guide-section">
+        <h2><span class="section-tag tag-what">What</span> What is Reliance Mapping?</h2>
+
+        <p>Reliance Mapping is a <strong>fast, visual planning method</strong> used to sequence outcomes based on how they depend on one another. You take the agreed value outcomes from your planning or discovery process, place them on a shared canvas, and draw dependency lines between them to show what relies on what.</p>
+
+        <p>It was originally created to <strong>simplify tools like Impact Mapping</strong>, which can have a high learning curve for both the audience and the facilitator. Reliance Mapping is designed for workshops and fast-paced planning &mdash; focusing on <strong>speed, clarity, and ease of use</strong>.</p>
+
+        <p>The practice is primarily used in remote deliveries where you need multiple distributed teams in one setting, but translates easily to physical delivery with sticky notes and a whiteboard.</p>
+
+        <div class="callout callout-amber">
+          <strong>Not tied to any single framework.</strong> This guide references operating models (like AAP) as one example of how to feed items into the map, but Reliance Mapping works with any planning scenario where workstreams are interdependent. If you already have agreed outcomes from your own discovery process &mdash; bring them straight in.
+        </div>
+
+        <h3>Scope categories</h3>
+        <p>Items are classified using a <strong>traffic-light system</strong> to represent agreed scope:</p>
+
+        <div class="scope-cards">
+          <div class="scope-card in">
+            <h4>In Scope &mdash; MVP</h4>
+            <p>Items the team has committed to delivering. These are non-negotiable for the current phase.</p>
+          </div>
+          <div class="scope-card stretch">
+            <h4>Stretch Scope &mdash; v2.0</h4>
+            <p>Items the team aspires to deliver if capacity and dependencies allow. Planned but not guaranteed.</p>
+          </div>
+          <div class="scope-card out">
+            <h4>Out of Scope &mdash; Advanced</h4>
+            <p>Items explicitly deferred. Visible on the map to acknowledge the gap and prevent scope creep.</p>
+          </div>
+        </div>
+
+        <p>If you are working with an operating model, these map naturally: In Scope corresponds to your MVP, Stretch to your v2.0, and Out of Scope to your advanced or future-state items. But these labels work just as well for any planning context &mdash; you decide what each tier means for your initiative.</p>
+
+        <h3>Dependency lines</h3>
+        <p>Items are connected with <strong>dependency lines</strong> that carry specific meaning:</p>
+
+        <table class="line-type-table">
+          <thead>
+            <tr><th>Line</th><th>Type</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="line-sample hard"></span></td>
+              <td><strong>Hard dependency</strong></td>
+              <td>A must complete before B can start. This is a blocking relationship.</td>
+            </tr>
+            <tr>
+              <td><span class="line-sample soft"></span></td>
+              <td><strong>Soft dependency</strong></td>
+              <td>A must <em>start</em> before B, but doesn't need to finish. Work can overlap.</td>
+            </tr>
+            <tr>
+              <td><span class="line-sample parallel"></span></td>
+              <td><strong>Parallel</strong></td>
+              <td>No dependency. Work can proceed simultaneously with independent teams.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>When an item is large enough to warrant its own breakdown, it is flagged as <strong>&ldquo;needs its own initiative&rdquo;</strong> and linked to a separate sub-map where the team can decompose it further without cluttering the main view.</p>
+
+        <h3>What you walk away with</h3>
+        <div class="outcome-grid">
+          <div class="outcome-item"><span class="outcome-check">&#10003;</span> A realistic expectation around risks and delays based on dependencies within the sequence</div>
+          <div class="outcome-item"><span class="outcome-check">&#10003;</span> A shared understanding of sequencing across the team</div>
+          <div class="outcome-item"><span class="outcome-check">&#10003;</span> A shared understanding of the limitations of the proposed delivery based on scope</div>
+          <div class="outcome-item"><span class="outcome-check">&#10003;</span> A clear view forward from strategy to execution</div>
+          <div class="outcome-item"><span class="outcome-check">&#10003;</span> A clear understanding of responsibilities between teams</div>
+          <div class="outcome-item"><span class="outcome-check">&#10003;</span> Uncovered hidden dependencies that the conversation itself surfaces</div>
+        </div>
+
+        <div class="callout callout-green">
+          <strong>The biggest value</strong> isn't just the finished map &mdash; it's the conversation required to build it. The process of drawing lines and debating dependencies naturally uncovers what your customer may <em>want</em> vs. what they actually <em>need</em>.
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════ Why ═══════════════════════════════════════ -->
+      <div class="guide-section">
+        <h2><span class="section-tag tag-why">Why</span> Why use Reliance Mapping?</h2>
+
+        <ul>
+          <li><strong>Traditional frameworks are often too complex</strong> for time-limited workshop environments. Reliance Mapping is simple to explain and quick to execute.</li>
+          <li><strong>Drives fast alignment and consensus</strong> through the conversations required to build the map. The exercise forces implicit knowledge about dependencies onto a shared surface.</li>
+          <li><strong>Maps dependencies into clear roadmaps.</strong> Tactical activities become visible execution cycles, not abstract strategy documents.</li>
+          <li><strong>Aligns understanding of scope.</strong> The team can see at a glance what&rsquo;s in scope, what&rsquo;s a stretch, and what&rsquo;s been deferred &mdash; and how those categories affect each other through dependencies.</li>
+          <li><strong>Clarifies responsibilities.</strong> When dependencies cross teams, the map makes it obvious where collaboration is needed to satisfy them &mdash; and who owns what.</li>
+          <li><strong>Prevents optimistic parallelism.</strong> Teams often assume work can run in parallel. The map makes blocking relationships visible before they stall delivery weeks later.</li>
+          <li><strong>Creates a living artefact.</strong> Unlike a static priority list, the map can be revisited. Items shift scope, new dependencies emerge, sub-maps get created &mdash; the artefact evolves with the programme.</li>
+        </ul>
+      </div>
+
+      <!-- ═══════════════════════════════════════ When ═══════════════════════════════════════ -->
+      <div class="guide-section">
+        <h2><span class="section-tag tag-when">When</span> When do I use Reliance Mapping?</h2>
+
+        <p>Use Reliance Mapping when:</p>
+        <ul>
+          <li>You need to create <strong>quick alignment around outcomes</strong></li>
+          <li>You&rsquo;re moving from strategy to execution and need an <strong>engagement plan</strong></li>
+          <li><strong>Time is limited</strong> and clarity is critical</li>
+          <li>The team has outcomes defined but <strong>no clear way forward</strong> &mdash; e.g. when a customer wants X, but needs to understand why X cannot happen without Y</li>
+          <li>You&rsquo;re working through a <strong>discovery workshop</strong> and need a clear map for handover</li>
+          <li>You have <strong>interdependent workstreams</strong> across multiple teams &mdash; any linear and parallel flow of outcomes</li>
+        </ul>
+
+        <p>Reliance Mapping is particularly effective when used alongside an operating model (e.g. AAP), but is suitable for <strong>any planning scenario</strong> where outcomes need sequencing. Typically used in adoption spaces, at the end of Discovery moving into Planning.</p>
+      </div>
+
+      <!-- ═══════════════════════════════════════ Who ═══════════════════════════════════════ -->
+      <div class="guide-section">
+        <h2><span class="section-tag tag-who">Who</span> What do you need?</h2>
+
+        <h3>People</h3>
+        <ul>
+          <li><strong>Facilitator(s)</strong> &mdash; two facilitators is recommended. One leads while the other takes notes, reads the room, and keeps momentum. Having two lets them bounce off each other and encourage conversation from the group.</li>
+          <li><strong>Product Owner</strong></li>
+          <li><strong>Project Sponsor</strong> &mdash; both technical and business</li>
+          <li><strong>Architects / Engineers</strong></li>
+          <li><strong>Anyone who will be the primary persona tasked with an item</strong> in the map</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Facilitator tip:</strong> It helps if the facilitator has been present throughout the discovery process. The &ldquo;in-between&rdquo; conversations over the course of the journey ensure correct clarity and context. The facilitator should have both technical and the appropriate soft skills. Try not to bring over 30 people into the conversation &mdash; this works best with only those who are needed and most actively engaged.
+        </div>
+
+        <h3>Time</h3>
+        <p>For the best outcome, <strong>2 hours is sufficient</strong>. It&rsquo;s recommended to revisit the map after a break to finalise. Alternatively, run <strong>1-hour sessions over a couple of days</strong> if logistics are tight &mdash; this also gives time to reflect. Use common sense and structure the time needed based on who can attend.</p>
+        <p>The full journey will require multiple meetings ahead of the mapping exercise itself, but those sit in the overall discovery phase &mdash; not purely the time allotted for the Reliance Mapping session.</p>
+
+        <h3>Materials</h3>
+        <div class="materials-cols">
+          <div class="materials-col">
+            <h4>Digital variation</h4>
+            <ul>
+              <li>This tool, or a whiteboard tool like Miro</li>
+              <li>Screen sharing for the group</li>
+              <li>One person driving, group calling out</li>
+            </ul>
+          </div>
+          <div class="materials-col">
+            <h4>Physical variation</h4>
+            <ul>
+              <li>Coloured sticky notes (green, amber, red &mdash; or any three colours)</li>
+              <li>A whiteboard or large surface</li>
+              <li>Whiteboard markers</li>
+              <li>Markers for stickies</li>
+              <li>Stickers for team tagging (optional)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════ Journey ═══════════════════════════════════════ -->
+      <div class="guide-section">
+        <h2><span class="section-tag tag-journey">Journey</span> The Reliance Mapping journey</h2>
+
+        <p>Before you can build the map, you need outcomes to map. The journey below uses simple practices from the <a href="https://openpracticelibrary.com/" target="_blank" rel="noopener">Open Practice Library</a> so that even new facilitators can move the needle. There is an argument for using fewer, more complex practices &mdash; but simple core practices are easier to understand and deliver, and give new facilitators a natural progression.</p>
+
+        <div class="callout callout-amber">
+          <strong>These steps are guidance, not rigid.</strong> If you already have agreed outcomes from your own discovery method &mdash; skip ahead to the mapping exercise. Often your customer will know 80% of what they need; you may only need to figure out the remaining 20%.
+        </div>
+
+        <p>Before mapping, you should ideally:</p>
+        <ol>
+          <li><strong>Run a high-level strategy discussion</strong> &mdash; executive intent across 3, 6, 12 months. Note this down.</li>
+          <li><strong>Identify stakeholders and teams involved</strong> &mdash; this can be a RACI or a topological map, commonly tagged with who is a champion and who is enthusiastic toward the effort.</li>
+          <li><strong>Clarify high-value outcomes</strong> for the initiative.</li>
+          <li><strong>Understand scope constraints</strong> based on time and team capacity.</li>
+          <li><strong>Expand the outcomes</strong> &mdash; e.g. using <a href="https://openpracticelibrary.com/practice/5-whys/" target="_blank" rel="noopener">5 Whys</a> or an <a href="https://openpracticelibrary.com/practice/opportunity-solution-tree/" target="_blank" rel="noopener">Opportunity Solution Tree</a>.</li>
+          <li><strong>Refine and prioritise</strong> the items you will map &mdash; e.g. using <a href="https://openpracticelibrary.com/practice/priority-sliders/" target="_blank" rel="noopener">Priority Sliders</a>.</li>
+        </ol>
+
+        <p>If these are already known &mdash; move directly onto the mapping exercise. If more clarity is required around outcomes, run an outcome mapping exercise with the team first.</p>
+
+        <div class="callout callout-green">
+          <strong>The mapping exercise is just as much about the output as it is about encouraging the conversation.</strong> Pulling stakeholders into an environment where they are all working to build the singular output (the map) should do 70% of the work of facilitating the discussion. The facilitator then guides the topic forward.
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════ How ═══════════════════════════════════════ -->
+      <div class="guide-section">
+        <h2><span class="section-tag tag-how">How</span> How to create the Reliance Map</h2>
+
+        <p>Create a <strong>left-to-right and top-to-bottom</strong> linear map showing dependencies between outcomes and activities.</p>
+
+        <ol class="step-list">
+          <li><strong>Add your items to the canvas.</strong> You can import items from an existing source (e.g. an OMA workshop snapshot, a spreadsheet, or a previous session&rsquo;s JSON export), or add them manually one by one. Each item gets a label, a scope classification, and an optional description.</li>
+          <li><strong>Classify scope.</strong> Assign each item to In Scope (MVP), Stretch (v2.0), or Out of Scope (Advanced). If you&rsquo;re working with an operating model, this mapping may already be done. If not, have the group agree on classification together &mdash; the conversation itself is valuable.</li>
+          <li><strong>Arrange spatially.</strong> Drag items to group related work. Some teams cluster by workstream, others by delivery phase. You can group items by scope colour and use numbering to show an agreed priority ordering. There&rsquo;s no fixed layout &mdash; the team decides what makes the most sense.</li>
+          <li><strong>Draw dependency lines.</strong> Hover over a card to reveal connection handles on each edge. Drag from a handle to another card to create a connection. The default is a hard dependency &mdash; click the line to change its type (solid, dotted, dashed) or add a note explaining the relationship.</li>
+          <li><strong>Identify bottlenecks.</strong> Look for items with many inbound hard-dependency lines &mdash; these are critical-path items. If they slip, everything downstream slips. Discuss whether the team needs to de-risk them, start them earlier, or break them down further.</li>
+          <li><strong>Flag sub-initiatives.</strong> Large items that need their own granular breakdown should be marked &ldquo;Needs its own initiative.&rdquo; Give it a linked map name and click the badge to open a separate sub-map. Having several initiatives mapped digitally can help present roadmap complexities more clearly.</li>
+          <li><strong>Tag teams and external factors.</strong> Some items may be owned by specific teams or be external to the effort you&rsquo;re mapping. Use descriptions or notes to tag team ownership. External factors that the team doesn&rsquo;t control should be clearly marked.</li>
+          <li><strong>Review and export.</strong> Walk the map as a group. Follow the dependency chains from left to right and narrate the delivery sequence. Export as PNG for stakeholder decks or as JSON to continue refining later.</li>
+        </ol>
+      </div>
+
+      <!-- ═══════════════════════════════════════ After ═══════════════════════════════════════ -->
+      <div class="guide-section">
+        <h2><span class="section-tag tag-after">After</span> Translate the Map</h2>
+
+        <p>Once mapped, you have the opportunity to convert the output into a <strong>proposal or statement of work</strong>. The mapped items should correspond to opportunities in a solution tree or segments in an operating model. The child items can represent EPICs, which can then be distilled further into stories and tasks during sprint planning.</p>
+
+        <p>A Reliance Map can be created at any level, but should not be overused. Primarily, it exists to establish an <strong>initial high-level view</strong> of how an initiative can be actioned and ordered &mdash; easily digestible regardless of your level within the business.</p>
+
+        <p>This mapping journey acts as the <strong>bridge between strategy and delivery</strong>. All linked practices in this guide are used to encourage conversation and identify blind spots.</p>
+      </div>
+
+      <!-- ═══════════════════════════════════════ Roles ═══════════════════════════════════════ -->
+      <div class="guide-section">
+        <h2>Value by role</h2>
+        <div class="role-cards">
+          <div class="role-card">
+            <h4>Account Executives / SSA / SSP / CSE</h4>
+            <div class="role-value">Aligns client goals to delivery in a clear, visual way</div>
+            <ul>
+              <li>Clarifies scope and priorities</li>
+              <li>Enables better stakeholder conversations</li>
+              <li>Highlights risks and gaps early</li>
+              <li>Supports alignment with operating models</li>
+            </ul>
+          </div>
+          <div class="role-card">
+            <h4>SA / Developers / Technical Engineers</h4>
+            <div class="role-value">Brings clarity and reduces rework</div>
+            <ul>
+              <li>Visualises dependencies across workstreams</li>
+              <li>Breaks work into manageable tasks</li>
+              <li>Reduces uncertainty during development</li>
+              <li>Improves backlog quality and sprint planning</li>
+            </ul>
+          </div>
+          <div class="role-card">
+            <h4>Workshop Facilitators</h4>
+            <div class="role-value">Built for speed, clarity, and collaboration</div>
+            <ul>
+              <li>Easy to explain to cross-functional teams</li>
+              <li>Encourages engagement and fast consensus</li>
+              <li>Doesn&rsquo;t require complex tools or deep training</li>
+              <li>Fits discovery or Navigate formats</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════ Tips ═══════════════════════════════════════ -->
+      <div class="guide-section">
+        <h2><span class="section-tag tag-tips">Tips</span> Facilitation tips</h2>
+
+        <ul>
+          <li><strong>Two facilitators is better than one.</strong> One leads while the other takes notes and reads the room. They can catch each other if one stumbles and bounce off each other to encourage conversation.</li>
+          <li><strong>Start rough, refine later.</strong> Don&rsquo;t agonise over exact placement in the first pass. Get all items on the canvas, then rearrange as dependencies become clearer.</li>
+          <li><strong>Timebox the dependency drawing.</strong> Give the group 15&ndash;20 minutes to draw lines in pairs or small groups, then review together. This prevents the loudest voice from dominating the dependency narrative.</li>
+          <li><strong>Challenge every hard dependency.</strong> Teams default to &ldquo;hard&rdquo; when they&rsquo;re uncertain. Ask: <em>&ldquo;Could B start with partial output from A?&rdquo;</em> If yes, it&rsquo;s a soft dependency, and that opens up parallelism.</li>
+          <li><strong>Use notes on lines sparingly.</strong> Only annotate a connection when the <em>why</em> behind the dependency isn&rsquo;t obvious. &ldquo;Must complete security audit&rdquo; is useful; &ldquo;because it comes first&rdquo; is not.</li>
+          <li><strong>Keep Out of Scope items visible.</strong> They&rsquo;re on the map to prevent scope creep and acknowledge known gaps &mdash; removing them creates a false sense of completeness.</li>
+          <li><strong>Revisit with a break.</strong> For the best outcome, do the initial mapping then come back after a break (or the next day) to finalise. Fresh eyes catch missed dependencies.</li>
+          <li><strong>Remote facilitation works well.</strong> Share the screen and have one person drive the tool while the group calls out dependencies. Alternatively, export the JSON and have each sub-team add their dependencies asynchronously, then merge in a review session. The digital map is easy to take a picture of or share afterwards.</li>
+        </ul>
+      </div>
+
+      <!-- ═══════════════════════════════════════ Shortcuts ═══════════════════════════════════════ -->
+      <div class="guide-section">
+        <h2>Keyboard shortcuts &amp; interactions</h2>
+        <table class="line-type-table">
+          <thead><tr><th>Action</th><th>How</th></tr></thead>
+          <tbody>
+            <tr><td>Pan the canvas</td><td>Hold <strong>Space</strong> + drag</td></tr>
+            <tr><td>Zoom in / out</td><td>Scroll wheel</td></tr>
+            <tr><td>Select item</td><td>Click a card</td></tr>
+            <tr><td>Multi-select</td><td>Hold <strong>Shift</strong> + click, or drag-select on empty canvas</td></tr>
+            <tr><td>Select all</td><td><strong>Ctrl/Cmd + A</strong></td></tr>
+            <tr><td>Delete selected</td><td><strong>Delete</strong> or <strong>Backspace</strong></td></tr>
+            <tr><td>Duplicate item</td><td><strong>Ctrl/Cmd + D</strong> (with one item selected)</td></tr>
+            <tr><td>Undo / Redo</td><td><strong>Ctrl/Cmd + Z</strong> / <strong>Ctrl/Cmd + Y</strong></td></tr>
+            <tr><td>Connect items</td><td>Drag from edge handle to target card</td></tr>
+            <tr><td>Edit line type / note</td><td>Click or right-click a connection line</td></tr>
+            <tr><td>Edit item</td><td>Double-click a card, or click the pencil icon</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ═══════════════════════════════════════ Related ═══════════════════════════════════════ -->
+      <div class="guide-section">
+        <h2>Related practices</h2>
+        <p>Reliance Mapping uses simple, accessible practices from the Open Practice Library so that even new facilitators can move the needle. The following are referenced in this guide or complement the mapping exercise:</p>
+        <div class="links-grid">
+          <a class="link-card" href="https://openpracticelibrary.com/practice/opportunity-solution-tree/" target="_blank" rel="noopener">
+            <span class="lc-source">Open Practice Library</span>
+            <span class="lc-title">Opportunity Solution Tree</span>
+            <span class="lc-desc">Map solutions back to desired outcomes. Useful for expanding outcomes before mapping, or decomposing items that &ldquo;need their own initiative.&rdquo;</span>
+          </a>
+          <a class="link-card" href="https://openpracticelibrary.com/practice/priority-sliders/" target="_blank" rel="noopener">
+            <span class="lc-source">Open Practice Library</span>
+            <span class="lc-title">Priority Sliders</span>
+            <span class="lc-desc">Rank and refine priorities before mapping. The ordering from this exercise can be brought directly into the Reliance Map.</span>
+          </a>
+          <a class="link-card" href="https://openpracticelibrary.com/practice/5-whys/" target="_blank" rel="noopener">
+            <span class="lc-source">Open Practice Library</span>
+            <span class="lc-title">5 Whys</span>
+            <span class="lc-desc">Dig into root causes and expand outcomes. Helps ensure you&rsquo;re mapping the right items before drawing dependency lines.</span>
+          </a>
+          <a class="link-card" href="https://openpracticelibrary.com/practice/impact-mapping/" target="_blank" rel="noopener">
+            <span class="lc-source">Open Practice Library</span>
+            <span class="lc-title">Impact Mapping</span>
+            <span class="lc-desc">Connect goals to deliverables through actors and impacts. Reliance Mapping was created as a faster, simpler alternative for workshop contexts.</span>
+          </a>
+          <a class="link-card" href="https://openpracticelibrary.com/practice/value-slicing/" target="_blank" rel="noopener">
+            <span class="lc-source">Open Practice Library</span>
+            <span class="lc-title">Value Slicing</span>
+            <span class="lc-desc">Break large items into thin, deliverable slices. Useful when a bottleneck item on the map is too big to deliver in one go.</span>
+          </a>
+          <a class="link-card" href="https://openpracticelibrary.com/practice/vsm-and-mbpm/" target="_blank" rel="noopener">
+            <span class="lc-source">Open Practice Library</span>
+            <span class="lc-title">Value Stream Mapping</span>
+            <span class="lc-desc">Visualise end-to-end flow to find waste. A natural follow-up once the Reliance Map has revealed the critical path.</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════ CTA ═══════════════════════════════════════ -->
+      <div class="guide-cta">
+        <h3>Ready to build your Reliance Map?</h3>
+        <p>Open the interactive canvas and start mapping dependencies.</p>
+        <a href="./" class="tb-btn primary">Open Reliance Map</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span>Reliance Mapping &mdash; Practice Guide</span>
+      <a href="../">Back to workshop tool</a>
+    </div>
+  </footer>
+</body>
+</html>
