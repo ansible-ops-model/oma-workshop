@@ -63,6 +63,7 @@ button.on{background:var(--rh-black);color:var(--rh-white);border-color:var(--rh
 .risk-btn.on{background:#C9590C;border-color:#C9590C;color:#fff}
 .na-btn.on{background:var(--rh-gray-mid);border-color:var(--rh-gray-mid);color:#fff}
 .gap-btn.on{background:#007A6F;border-color:#007A6F;color:#fff}
+.map-btn.on{background:#6753AC;border-color:#6753AC;color:#fff}
 .mvp-btn.on{background:#795600;border-color:#795600;color:#fff}
 .t20-btn.on{background:var(--rh-blue-dark);border-color:var(--rh-blue-dark);color:#fff}
 .adv-btn.on{background:var(--rh-red-dark);border-color:var(--rh-red-dark);color:#fff}
@@ -235,6 +236,17 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
 .landing-or{font-size:11px;color:var(--rh-gray-200);align-self:center;padding:0 4px;display:none}
 @media(min-width:500px){.landing-or{display:block}}
 
+/* ── Context menu ── */
+.abtn{font-size:11px;padding:2px 7px;border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);background:var(--rh-white);cursor:pointer;font-family:var(--rh-font-text);white-space:nowrap}
+.abtn:hover{background:var(--rh-gray-100)}
+
+/* ── Team chips ── */
+.tm-chip{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:var(--rh-radius);background:var(--rh-gray-100);border:1px solid var(--rh-gray-200);color:var(--rh-gray-dark)}
+.tm-chip-del{cursor:pointer;color:var(--rh-gray-light);font-size:12px;line-height:1}
+.tm-chip-del:hover{color:var(--rh-red)}
+/* ── Team filter select ── */
+.team-filter-select{font-size:12px;padding:3px 9px;border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);font-family:var(--rh-font-text);background:#fff;color:var(--rh-black)}
+
 @media print{
   .rh-header,.toolbar,.rh-header,#status,.tree-wrap,#tooltip,.modal-bg{display:none!important}
   .panel{display:block!important;border:none;break-inside:avoid}
@@ -273,9 +285,14 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
 <!-- Row 1: View + Search -->
 <div class="row">
   <span class="lbl">View:</span>
-  <button class="vbtn on" onclick="setLvl(1,this)">Pillars</button>
-  <button class="vbtn" onclick="setLvl(2,this)">Groups</button>
-  <button class="vbtn" onclick="setLvl(99,this)">All topics</button>
+  <button class="vbtn on" onclick="setLvl(1,this)" title="Show only pillars">Pillars</button>
+  <button class="vbtn" onclick="setLvl(2,this)" title="Show pillars and groups">Groups</button>
+  <button class="vbtn" onclick="setLvl(99,this)" title="Expand all topics">All topics</button>
+  <div class="sep"></div>
+  <span class="lbl">Team:</span>
+  <select class="team-filter-select" id="teamFilter" onchange="setTeamFilter(this.value)">
+    <option value="">All teams</option>
+  </select>
   <div class="sep"></div>
   <span class="lbl">Search:</span>
   <input type="text" id="searchBox" placeholder="Find a topic…" oninput="onSearch(this.value)" style="font-size:12px;padding:3px 9px;border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);font-family:var(--rh-font-text);width:160px;background:#fff;color:var(--rh-black)">
@@ -286,23 +303,43 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
 <!-- Row 2: Mode -->
 <div class="row">
   <span class="lbl">Mode:</span>
-  <button class="mbtn on" onclick="setMode('nav',this)">Navigate</button>
-  <button class="mbtn done-btn" onclick="setMode('done',this)">✓ Have this</button>
-  <button class="mbtn plan-btn" onclick="setMode('planned',this)">◑ Planned</button>
-  <button class="mbtn risk-btn" onclick="setMode('risk',this)">⚠ Risk</button>
-  <button class="mbtn gap-btn" onclick="setMode('gap',this)">? Not Considered</button>
-  <button class="mbtn na-btn" onclick="setMode('na',this)">⊘ Not Relevant</button>
+  <button class="mbtn on" onclick="setMode('nav',this)" title="Click nodes to expand/collapse">Navigate</button>
+  <button class="mbtn done-btn" onclick="setMode('done',this)" title="Mark topics your organisation already has">✓ Have this</button>
+  <button class="mbtn plan-btn" onclick="setMode('planned',this)" title="Mark topics on your roadmap">◑ Planned</button>
+  <button class="mbtn risk-btn" onclick="setMode('risk',this)" title="Flag topics that pose a risk">⚠ Risk</button>
+  <button class="mbtn gap-btn" onclick="setMode('gap',this)" title="Topics never considered before">? Not Considered</button>
+  <button class="mbtn na-btn" onclick="setMode('na',this)" title="Topics discussed and deemed not relevant">⊘ Not Relevant</button>
   <div class="sep"></div>
   <span class="lbl">Reclassify:</span>
-  <button class="mbtn mvp-btn" onclick="setMode('mvp',this)">MVP</button>
-  <button class="mbtn t20-btn" onclick="setMode('2.0',this)">2.0</button>
-  <button class="mbtn adv-btn" onclick="setMode('advanced',this)">Advanced</button>
+  <button class="mbtn mvp-btn" onclick="setMode('mvp',this)" title="Reclassify topic as MVP maturity">MVP</button>
+  <button class="mbtn t20-btn" onclick="setMode('2.0',this)" title="Reclassify topic as 2.0 maturity">2.0</button>
+  <button class="mbtn adv-btn" onclick="setMode('advanced',this)" title="Reclassify topic as Advanced maturity">Advanced</button>
   <div class="sep"></div>
-  <button class="mbtn" onclick="setMode('clear',this)">✕ Clear</button>
-  <button class="danger-btn" onclick="resetAll()">Reset all</button>
+  <button class="mbtn" onclick="setMode('clear',this)" title="Remove annotation from a node">✕ Clear</button>
+  <button class="danger-btn" onclick="resetAll()" title="Clear all annotations and team assignments">Reset all</button>
 </div>
 
-<!-- Row 3: Panels -->
+<!-- Row 3: Node actions (shown when a node is selected) -->
+<div class="row node-actions-row" id="nodeActionsRow" style="display:none;align-items:center;gap:4px;background:var(--rh-gray-50);border:1px solid var(--rh-gray-200);border-radius:var(--rh-radius);padding:4px 10px;margin:2px 0">
+  <span style="font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px" id="selNodeName"></span>
+  <span id="selNodeStatus" style="font-size:10px;color:var(--rh-gray-mid);margin-right:4px"></span>
+  <div class="sep"></div>
+  <button class="abtn done-btn" onclick="selAction('done')" title="Mark as Have this">✓ Have this</button>
+  <button class="abtn plan-btn" onclick="selAction('planned')" title="Mark as Planned">◑ Planned</button>
+  <button class="abtn risk-btn" onclick="selAction('risk')" title="Flag as Risk">⚠ Risk</button>
+  <button class="abtn gap-btn" onclick="selAction('gap')" title="Mark as Not Considered">? Not Considered</button>
+  <button class="abtn na-btn" onclick="selAction('na')" title="Mark as Not Relevant">⊘ Not Relevant</button>
+  <button class="abtn" onclick="selAction('clear')" title="Clear annotation" style="color:var(--rh-gray-mid)">✕ Clear</button>
+  <div class="sep"></div>
+  <button class="abtn map-btn" id="selMapBtn" onclick="selToggleMap()" title="Tag/untag for Reliance Map">⑂ Map</button>
+  <button class="abtn" onclick="selAssignTeam()" title="Assign a team to this node">👥 Team</button>
+  <button class="abtn" onclick="selDuplicate()" title="Duplicate this node as a custom topic" id="selDupBtn">⧉ Duplicate</button>
+  <button class="abtn" onclick="selDelete()" title="Delete this custom topic" id="selDelBtn" style="color:var(--rh-red)">🗑 Delete</button>
+  <div class="sep"></div>
+  <button class="abtn" onclick="deselectNode()" title="Deselect node" style="color:var(--rh-gray-mid)">✕</button>
+</div>
+
+<!-- Row 4: Panels -->
 <div class="row">
   <span class="lbl">Panels:</span>
   <button id="pbtn-summary"  onclick="togglePanel('summary',this)">Summary ▾</button>
@@ -314,10 +351,12 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
 <!-- Row 4: Export / Save -->
 <div class="row">
   <span class="lbl">Export:</span>
-  <button onclick="exportCSV()">↓ CSV</button>
-  <button onclick="exportJSON()">↓ JSON</button>
-  <button id="copyBtn" onclick="copyText(this)">Copy text</button>
-  <button onclick="window.print()">Print</button>
+  <button onclick="exportCSV()" title="Export assessment as CSV spreadsheet">↓ CSV</button>
+  <button onclick="exportJSON()" title="Export full session as JSON">↓ JSON</button>
+  <button onclick="exportDrawio()" title="Export tree as draw.io diagram">↓ draw.io</button>
+  <button onclick="exportMiroCSV()" title="Export topics as Miro-ready CSV">↓ Miro CSV</button>
+  <button id="copyBtn" onclick="copyText(this)" title="Copy assessment as plain text">Copy text</button>
+  <button onclick="window.print()" title="Print the current view">Print</button>
   <div class="sep"></div>
   <span class="lbl">Session:</span>
   <button class="btn-primary" onclick="saveNamedVersion()">↓ Save snapshot</button>
@@ -392,6 +431,7 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
       <th style="width:120px">Group</th>
       <th>Topic</th>
       <th style="width:75px">Level</th>
+      <th style="width:90px">Team</th>
     </tr></thead>
     <tbody id="sum-body"></tbody></table>
     <div id="no-rows" class="no-rows" style="display:none">No items match this filter.</div>
@@ -466,6 +506,8 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
       </ul>
       <p style="font-weight:500;color:var(--rh-black);margin-bottom:4px">Saving your work</p>
       <p style="margin-bottom:10px">The tool auto-saves to your browser on every change. Use <strong>↓ Save snapshot</strong> to download a named JSON file you can share or reload later. Drag a snapshot file onto the page to restore a session.</p>
+      <p style="font-weight:500;color:var(--rh-black);margin-bottom:4px">Assigning teams</p>
+      <p style="margin-bottom:10px"><strong>Right-click</strong> any node to assign a responsible team. Create and manage team names from the modal. Use the <strong>Team</strong> dropdown in the toolbar to filter the tree, summary, and priority panels by team.</p>
       <p style="font-weight:500;color:var(--rh-black);margin-bottom:4px">Adding custom topics</p>
       <p style="margin-bottom:10px">Use <strong>+ Add topic</strong> to add topics specific to your organisation. Custom topics are marked with a dashed border and ★ in exports.</p>
       <p style="font-weight:500;color:var(--rh-black);margin-bottom:4px">About this tool</p>
@@ -516,6 +558,30 @@ tr.r-mvp{background:#FDF7EE} tr.r-20{background:#EEF3FB} tr.r-adv{background:#FE
   </div>
 </div>
 
+<!-- Team assignment modal -->
+<div class="modal-bg" id="team-modal">
+  <div class="modal" style="width:380px">
+    <h2>Assign teams</h2>
+    <p style="font-size:12px;color:var(--rh-gray-mid);margin-bottom:12px" id="team-modal-topic"></p>
+    <div id="tm-checkboxes" style="margin-bottom:12px;max-height:200px;overflow-y:auto"></div>
+    <div style="display:flex;gap:6px;align-items:flex-end;margin-bottom:12px">
+      <div class="form-row" style="flex:1;margin-bottom:0">
+        <label>Add new team</label>
+        <input type="text" id="tm-new-name" placeholder="e.g. Platform Ops">
+      </div>
+      <button onclick="addTeamFromModal()" style="height:31px;white-space:nowrap">+ Add</button>
+    </div>
+    <div id="tm-manage" style="margin-bottom:8px">
+      <div style="font-size:10px;font-weight:500;color:var(--rh-gray-mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Managed teams</div>
+      <div id="tm-team-list" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+    </div>
+    <div class="modal-btns">
+      <button onclick="closeTeamModal()">Cancel</button>
+      <button onclick="assignTeam()" class="btn-primary">Assign</button>
+    </div>
+  </div>
+</div>
+
 <!-- Tooltip -->
 <div id="tooltip">
   <div id="tt-custom-badge" class="tt-custom" style="display:none">Custom topic</div>
@@ -555,6 +621,10 @@ let ANN = {};           // nodePath → annotation
 let customNodes = [];   // [{name,pillar,group,level,desc}]
 let versions = [];      // [{id,label,timestamp,ann,custom}]
 let priorityOrder = []; // array of nodePaths in user-defined order
+let TEAMS = {};         // nodePath → [team names]
+let teamList = [];      // managed list of team names
+let MAPPED = {};        // nodePath → true (tagged for reliance map)
+let TEAM_FILTER = '';   // '' = all, 'unassigned', or a team name
 let MODE = 'nav';
 let SUM_FILTER = 'all';
 let PRI_FILTER = 'all';
@@ -563,6 +633,7 @@ let activePanel = null;
 const NW=138, NH=32, VS=74;
 const LAY = d3.tree().nodeSize([NW+14,VS]);
 const SV  = d3.select('#sv');
+SV.on('click', function(e) { if (e.target === this.node() && selectedNode) deselectNode(); });
 const G   = SV.append('g');
 let ROOT;
 let DUPLICATE_NAMES = {}; // name → [{path, pillar, group, level}] for leaf topics sharing a name
@@ -578,7 +649,7 @@ const PILLAR_GROUPS = {
 const LS_KEY = 'aap_model_state';
 function saveState() {
   try {
-    localStorage.setItem(LS_KEY, JSON.stringify({ANN,customNodes,versions,priorityOrder}));
+    localStorage.setItem(LS_KEY, JSON.stringify({ANN,customNodes,versions,priorityOrder,TEAMS,teamList,MAPPED}));
     flashSaved();
     updateAutoSaveTime();
   } catch(e){}
@@ -592,6 +663,11 @@ function loadState() {
     customNodes = p.customNodes || [];
     versions = p.versions || [];
     priorityOrder = p.priorityOrder || [];
+    TEAMS = p.TEAMS || {};
+    // Migrate string teams to arrays
+    Object.keys(TEAMS).forEach(k => { if (typeof TEAMS[k] === 'string') TEAMS[k] = TEAMS[k] ? [TEAMS[k]] : []; });
+    teamList = p.teamList || [];
+    MAPPED = p.MAPPED || {};
   } catch(e){}
 }
 function flashSaved() {
@@ -764,8 +840,8 @@ function setMode(m,btn){
   btn.classList.add('on');
 }
 function resetAll(){
-  if(!confirm('Clear all annotations and reclassifications? Custom topics and version history will be kept.'))return;
-  ANN={};
+  if(!confirm('Clear all annotations, reclassifications, and team assignments? Custom topics and version history will be kept.'))return;
+  ANN={};TEAMS={};
   updateStatus();
   saveState();
   refreshPanels();
@@ -809,7 +885,8 @@ function getSummaryRows(){
     else if(d.depth===2&&d.parent&&d.parent.data.type==='group')group=d.parent.data.name;
     const ann=ANN[nodePath(d)]||'';
     const level=d.data.level||(d.data.type==='group'?'group':d.data.type==='pillar'?'pillar':'');
-    rows.push({pillar,group,name:d.data.name,level,ann,dtype:d.data.type||'topic',custom:!!d.data.custom,depth:d.depth});
+    const team=(TEAMS[nodePath(d)]||[]).join(', ');
+    rows.push({pillar,group,name:d.data.name,level,ann,dtype:d.data.type||'topic',custom:!!d.data.custom,depth:d.depth,team,path:nodePath(d)});
   });
   return rows;
 }
@@ -841,14 +918,20 @@ function levelPill(level,isCustom){
 function buildSummaryTable(){
   const rows=getSummaryRows();
   const filtered=rows.filter(r=>{
-    if(SUM_FILTER==='all')return true;
-    if(SUM_FILTER==='done')return r.ann==='done';
-    if(SUM_FILTER==='planned')return r.ann==='planned';
-    if(SUM_FILTER==='risk')return r.ann==='risk';
-    if(SUM_FILTER==='gap')return r.ann==='gap';
-    if(SUM_FILTER==='na')return r.ann==='na';
-    if(SUM_FILTER==='recl')return r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk'&&r.ann!=='gap'&&r.ann!=='na';
-    if(SUM_FILTER==='none')return!r.ann;
+    if(SUM_FILTER!=='all'){
+      if(SUM_FILTER==='done'&&r.ann!=='done')return false;
+      if(SUM_FILTER==='planned'&&r.ann!=='planned')return false;
+      if(SUM_FILTER==='risk'&&r.ann!=='risk')return false;
+      if(SUM_FILTER==='gap'&&r.ann!=='gap')return false;
+      if(SUM_FILTER==='na'&&r.ann!=='na')return false;
+      if(SUM_FILTER==='recl'&&!(r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk'&&r.ann!=='gap'&&r.ann!=='na'))return false;
+      if(SUM_FILTER==='none'&&r.ann)return false;
+    }
+    if(TEAM_FILTER){
+      if(r.dtype==='pillar'||r.dtype==='group')return true;
+      if(TEAM_FILTER==='unassigned')return!r.team;
+      return r.team===TEAM_FILTER;
+    }
     return true;
   });
   const body=document.getElementById('sum-body');
@@ -867,7 +950,8 @@ function buildSummaryTable(){
       <td style="font-weight:500;color:#085041;font-size:11px">${r.dtype==='pillar'?`<strong>${r.name}</strong>`:r.pillar}</td>
       <td style="color:#5F5E5A;font-style:italic;font-size:11px">${r.dtype==='group'?r.name:(r.group||'')}</td>
       <td style="${nameStyle}">${isDT||r.dtype==='group'?r.name:''}</td>
-      <td>${levelPill(r.level,r.custom)}</td>`;
+      <td>${levelPill(r.level,r.custom)}</td>
+      <td style="font-size:10px;color:#6753AC">${r.team||''}</td>`;
     body.appendChild(tr);
   });
 }
@@ -876,7 +960,7 @@ function buildSummaryTable(){
 function saveNamedVersion(){
   const label=prompt('Name this snapshot (e.g. "After session 1"):','Snapshot '+new Date().toLocaleDateString());
   if(label===null)return;
-  const snap={id:Date.now(),label:label||'Unnamed',timestamp:new Date().toISOString(),ann:{...ANN},custom:JSON.parse(JSON.stringify(customNodes)),priorityOrder:[...priorityOrder]};
+  const snap={id:Date.now(),label:label||'Unnamed',timestamp:new Date().toISOString(),ann:{...ANN},mapped:{...MAPPED},custom:JSON.parse(JSON.stringify(customNodes)),priorityOrder:[...priorityOrder],teams:{...TEAMS},teamList:[...teamList]};
   versions.unshift(snap);
   if(versions.length>20)versions.pop();
   saveState();
@@ -890,10 +974,14 @@ function restoreVersion(idx){
   if(!v)return;
   if(!confirm(`Restore snapshot "${v.label}"? Your current annotations will be replaced.`))return;
   ANN=JSON.parse(JSON.stringify(v.ann));
+  MAPPED=JSON.parse(JSON.stringify(v.mapped||{}));
   customNodes=JSON.parse(JSON.stringify(v.custom||[]));
+  TEAMS=JSON.parse(JSON.stringify(v.teams||{}));
+  teamList=v.teamList?[...v.teamList]:[];
   buildRoot();
   updateStatus();
   saveState();
+  refreshTeamFilter();
   refreshPanels();
   draw();
 }
@@ -968,7 +1056,8 @@ function getPriorityItems(){
     let group='';
     if(d.depth===3)group=ancs[2].data.name;
     else if(d.depth===2&&d.parent&&d.parent.data.type==='group')group=d.parent.data.name;
-    rows.push({path:nodePath(d),name:d.data.name,pillar,group,level:d.data.level||'',ann,custom:!!d.data.custom});
+    const team=(TEAMS[nodePath(d)]||[]).join(', ');
+    rows.push({path:nodePath(d),name:d.data.name,pillar,group,level:d.data.level||'',ann,custom:!!d.data.custom,team});
   });
   return rows;
 }
@@ -982,13 +1071,18 @@ let dragSrcIdx = null;
 function buildPriorityPanel(){
   const allItems=getPriorityItems();
   const filtered=allItems.filter(r=>{
-    if(PRI_FILTER==='all')return true;
-    if(PRI_FILTER==='done')return r.ann==='done';
-    if(PRI_FILTER==='planned')return r.ann==='planned';
-    if(PRI_FILTER==='risk')return r.ann==='risk';
-    if(PRI_FILTER==='gap')return r.ann==='gap';
-    if(PRI_FILTER==='na')return r.ann==='na';
-    if(PRI_FILTER==='recl')return r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk'&&r.ann!=='gap'&&r.ann!=='na';
+    if(PRI_FILTER!=='all'){
+      if(PRI_FILTER==='done'&&r.ann!=='done')return false;
+      if(PRI_FILTER==='planned'&&r.ann!=='planned')return false;
+      if(PRI_FILTER==='risk'&&r.ann!=='risk')return false;
+      if(PRI_FILTER==='gap'&&r.ann!=='gap')return false;
+      if(PRI_FILTER==='na'&&r.ann!=='na')return false;
+      if(PRI_FILTER==='recl'&&!(r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk'&&r.ann!=='gap'&&r.ann!=='na'))return false;
+    }
+    if(TEAM_FILTER){
+      if(TEAM_FILTER==='unassigned')return!r.team;
+      return r.team===TEAM_FILTER;
+    }
     return true;
   });
   // Sort by priority order first, then by maturity level
@@ -1022,9 +1116,10 @@ function buildPriorityPanel(){
     div.setAttribute('draggable','true');
     div.dataset.path=item.path;
     div.dataset.idx=idx;
+    const teamBadge=item.team?`<span style="font-size:9px;color:#6753AC;background:#E8DAFF;padding:1px 5px;border-radius:2px;margin-left:4px">${item.team}</span>`:'';
     div.innerHTML=`<span class="pri-drag">⋮⋮</span>
       <div style="flex:1;min-width:0">
-        <div class="pri-name">${item.name}</div>
+        <div class="pri-name">${item.name}${teamBadge}</div>
         <div class="pri-path">${item.pillar}${item.group?' › '+item.group:''}</div>
       </div>
       <span class="pri-ann ${annCls}">${annLabel(item.ann)}</span>`;
@@ -1057,7 +1152,7 @@ function exportPriorityCSV(){
     return lvlOrder(a.level)-lvlOrder(b.level);
   });
   const filtered=allItems.filter(r=>PRI_FILTER==='all'||r.ann===PRI_FILTER||(PRI_FILTER==='recl'&&r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk'&&r.ann!=='gap'&&r.ann!=='na'));
-  const csv=[['Priority','Pillar','Group','Topic','Level','Status'],...filtered.map((r,i)=>[i+1,r.pillar,r.group,r.name,r.level,annLabel(r.ann)])]
+  const csv=[['Priority','Pillar','Group','Topic','Level','Status','Team'],...filtered.map((r,i)=>[i+1,r.pillar,r.group,r.name,r.level,annLabel(r.ann),(TEAMS[r.path]||[]).join(', ')])]
     .map(row=>row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   dlFile('aap-priority.csv',csv,'text/csv;charset=utf-8;');
 }
@@ -1110,6 +1205,166 @@ function addTopic(){
   draw();
 }
 
+// ─── Node selection & action bar ──────────────────────────────────────────
+let selectedNode = null;
+function selectNode(d) {
+  if (d.depth === 0) return;
+  selectedNode = d;
+  const key = nodePath(d);
+  document.getElementById('selNodeName').textContent = d.data.name;
+  const ann = ANN[key], teams = TEAMS[key] || [];
+  let st = '';
+  if (ann) st = annLabel(ann);
+  if (teams.length) st += (st ? ' · ' : '') + teams.join(', ');
+  if (MAPPED[key]) st += (st ? ' · ' : '') + '⑂ Mapped';
+  document.getElementById('selNodeStatus').textContent = st ? '(' + st + ')' : '';
+  document.getElementById('selDupBtn').style.display = d.data.custom ? 'none' : '';
+  document.getElementById('selDelBtn').style.display = d.data.custom ? '' : 'none';
+  const mapBtn = document.getElementById('selMapBtn');
+  mapBtn.style.background = MAPPED[key] ? '#6753AC' : '';
+  mapBtn.style.color = MAPPED[key] ? '#fff' : '';
+  mapBtn.style.borderColor = MAPPED[key] ? '#6753AC' : '';
+  document.getElementById('nodeActionsRow').style.display = 'flex';
+  draw();
+}
+function deselectNode() {
+  selectedNode = null;
+  document.getElementById('nodeActionsRow').style.display = 'none';
+  draw();
+}
+function selAction(action) {
+  if (!selectedNode) return;
+  const key = nodePath(selectedNode);
+  if (action === 'clear') delete ANN[key];
+  else ANN[key] = action;
+  updateStatus(); saveState(); refreshPanels();
+  selectNode(selectedNode);
+}
+function selToggleMap() {
+  if (!selectedNode) return;
+  const key = nodePath(selectedNode);
+  if (MAPPED[key]) delete MAPPED[key];
+  else MAPPED[key] = true;
+  saveState(); draw();
+  selectNode(selectedNode);
+}
+function selAssignTeam() {
+  if (!selectedNode) return;
+  openTeamModal(selectedNode);
+}
+function selDuplicate() {
+  if (!selectedNode || selectedNode.data.custom) return;
+  const parent = selectedNode.parent;
+  if (!parent) return;
+  const newName = selectedNode.data.name + ' (copy)';
+  const newNode = {name: newName, custom: true};
+  if (!parent.data.children) parent.data.children = [];
+  parent.data.children.push(newNode);
+  if (parent.children) {
+    const child = d3.hierarchy(newNode);
+    child.depth = parent.depth + 1;
+    child.parent = parent;
+    child.data.type = selectedNode.data.type;
+    parent.children.push(child);
+  }
+  saveState(); draw();
+}
+function selDelete() {
+  if (!selectedNode || !selectedNode.data.custom) return;
+  if (!confirm('Delete custom topic "' + selectedNode.data.name + '"?')) return;
+  const key = nodePath(selectedNode);
+  delete ANN[key];
+  delete TEAMS[key];
+  const parent = selectedNode.parent;
+  if (parent) {
+    if (parent.children) parent.children = parent.children.filter(c => c !== selectedNode);
+    if (parent._children) parent._children = parent._children.filter(c => c !== selectedNode);
+    if (parent.data.children) parent.data.children = parent.data.children.filter(c => c.name !== selectedNode.data.name || !c.custom);
+  }
+  deselectNode();
+  updateStatus(); saveState(); refreshPanels();
+}
+
+// ─── Team assignment ──────────────────────────────────────────────────────
+let teamModalPath = '';
+function openTeamModal(d) {
+  teamModalPath = nodePath(d);
+  document.getElementById('team-modal-topic').textContent = d.data.name;
+  refreshTeamCheckboxes();
+  refreshTeamChips();
+  document.getElementById('tm-new-name').value = '';
+  document.getElementById('team-modal').classList.add('show');
+}
+function closeTeamModal() {
+  document.getElementById('team-modal').classList.remove('show');
+  teamModalPath = '';
+}
+function refreshTeamCheckboxes() {
+  const container = document.getElementById('tm-checkboxes');
+  const current = TEAMS[teamModalPath] || [];
+  if (!teamList.length) { container.innerHTML = '<span style="font-size:12px;color:var(--rh-gray-light)">No teams yet — add one below</span>'; return; }
+  container.innerHTML = teamList.map(t =>
+    `<label style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:13px;cursor:pointer"><input type="checkbox" class="tm-cb" value="${t}" ${current.includes(t)?'checked':''} style="accent-color:var(--rh-red);width:15px;height:15px"> ${t}</label>`
+  ).join('');
+}
+function refreshTeamChips() {
+  const container = document.getElementById('tm-team-list');
+  if (!teamList.length) { container.innerHTML = '<span style="font-size:11px;color:var(--rh-gray-light)">No teams yet</span>'; return; }
+  container.innerHTML = teamList.map((t, i) =>
+    `<span class="tm-chip">${t}<span class="tm-chip-del" onclick="removeTeam(${i})" title="Delete team">×</span></span>`
+  ).join('');
+}
+function addTeamFromModal() {
+  const input = document.getElementById('tm-new-name');
+  const name = input.value.trim();
+  if (!name) return;
+  if (teamList.includes(name)) { input.value = ''; return; }
+  teamList.push(name);
+  teamList.sort((a, b) => a.localeCompare(b));
+  if (!TEAMS[teamModalPath]) TEAMS[teamModalPath] = [];
+  if (!TEAMS[teamModalPath].includes(name)) TEAMS[teamModalPath].push(name);
+  refreshTeamCheckboxes();
+  refreshTeamChips();
+  refreshTeamFilter();
+  input.value = '';
+  saveState();
+}
+function removeTeam(idx) {
+  const name = teamList[idx];
+  if (!confirm(`Delete team "${name}"? Assignments using this team will be cleared.`)) return;
+  teamList.splice(idx, 1);
+  Object.keys(TEAMS).forEach(k => { TEAMS[k] = TEAMS[k].filter(t => t !== name); if (!TEAMS[k].length) delete TEAMS[k]; });
+  if (TEAM_FILTER === name) { TEAM_FILTER = ''; }
+  refreshTeamSelect();
+  refreshTeamChips();
+  refreshTeamFilter();
+  saveState();
+  refreshPanels();
+  draw();
+}
+function setTeamFilter(val) {
+  TEAM_FILTER = val;
+  refreshPanels();
+  draw();
+}
+function refreshTeamFilter() {
+  const sel = document.getElementById('teamFilter');
+  const cur = TEAM_FILTER;
+  sel.innerHTML = '<option value="">All teams</option>';
+  teamList.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
+  const u = document.createElement('option'); u.value = 'unassigned'; u.textContent = 'Unassigned'; sel.appendChild(u);
+  sel.value = cur;
+}
+function assignTeam() {
+  const checked = [...document.querySelectorAll('.tm-cb:checked')].map(cb => cb.value);
+  if (checked.length) TEAMS[teamModalPath] = checked;
+  else delete TEAMS[teamModalPath];
+  closeTeamModal();
+  saveState();
+  refreshPanels();
+  draw();
+}
+
 // ─── Exports ──────────────────────────────────────────────────────────────
 function dlFile(name,content,type){
   const blob=new Blob([content],{type});
@@ -1120,16 +1375,16 @@ function dlFile(name,content,type){
 }
 function exportCSV(){
   const rows=getSummaryRows();
-  const csv=[['Pillar','Group','Topic','Level','Status'],...rows.map(r=>[
+  const csv=[['Pillar','Group','Topic','Level','Status','Team'],...rows.map(r=>[
     r.dtype==='pillar'?r.name:r.pillar,
     r.dtype==='group'?r.name:r.group,
     r.dtype!=='pillar'&&r.dtype!=='group'?r.name:'',
-    r.level,annLabel(r.ann)
+    r.level,annLabel(r.ann),r.team||''
   ])].map(row=>row.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\r\n');
   dlFile('aap-assessment.csv',csv,'text/csv;charset=utf-8;');
 }
 function exportJSON(){
-  const payload={exported:new Date().toISOString(),ANN,customNodes,versions,priorityOrder};
+  const payload={exported:new Date().toISOString(),ANN,MAPPED,customNodes,versions,priorityOrder,TEAMS,teamList};
   dlFile('aap-assessment.json',JSON.stringify(payload,null,2),'application/json');
 }
 function importJSON(evt){
@@ -1141,14 +1396,19 @@ function importJSON(evt){
       if(p.exportedAs==='snapshot'){
         if(!confirm(`Load snapshot "${p.label}"? Your current annotations will be replaced.`)){evt.target.value='';return;}
         ANN=JSON.parse(JSON.stringify(p.ann||{}));
+        MAPPED=JSON.parse(JSON.stringify(p.mapped||{}));
         customNodes=JSON.parse(JSON.stringify(p.custom||[]));
         priorityOrder=p.priorityOrder||[];
-        if(!versions.find(v=>v.id===p.id)) versions.unshift({id:p.id,label:p.label,timestamp:p.timestamp,ann:p.ann,custom:p.custom,priorityOrder:p.priorityOrder});
+        TEAMS=JSON.parse(JSON.stringify(p.teams||{}));
+        if(p.teamList) p.teamList.forEach(t=>{if(!teamList.includes(t))teamList.push(t);});
+        teamList.sort((a,b)=>a.localeCompare(b));
+        if(!versions.find(v=>v.id===p.id)) versions.unshift({id:p.id,label:p.label,timestamp:p.timestamp,ann:p.ann,custom:p.custom,priorityOrder:p.priorityOrder,teams:p.teams,teamList:p.teamList});
       } else {
         if(!confirm('Load full session export? This will replace all current data including version history.')){evt.target.value='';return;}
-        ANN=p.ANN||{};customNodes=p.customNodes||[];versions=p.versions||[];priorityOrder=p.priorityOrder||[];
+        ANN=p.ANN||{};MAPPED=p.MAPPED||{};customNodes=p.customNodes||[];versions=p.versions||[];priorityOrder=p.priorityOrder||[];
+        TEAMS=p.TEAMS||{};teamList=p.teamList||[];
       }
-      buildRoot();updateStatus();saveState();refreshPanels();draw();
+      buildRoot();updateStatus();saveState();refreshTeamFilter();refreshPanels();draw();
       dismissLanding();
     }catch(err){alert('Could not parse JSON file. Please check it is a valid AAP export or snapshot.');}
     evt.target.value='';
@@ -1167,7 +1427,8 @@ function copyText(btn){
       const ind=curGroup?'      ':'    ';
       const lvl=r.level?` (${r.level})`:'';
       const sta=r.ann&&r.ann!=='done'&&r.ann!=='planned'&&r.ann!=='risk'&&r.ann!=='gap'&&r.ann!=='na'?` → ${r.ann}`:'';
-      out+=`${ind}${pfx} ${r.name}${lvl}${sta}\n`;
+      const teamTag=r.team?` [${r.team}]`:'';
+      out+=`${ind}${pfx} ${r.name}${lvl}${sta}${teamTag}\n`;
     }
   });
   const done=Object.values(ANN).filter(v=>v==='done').length;
@@ -1180,6 +1441,76 @@ function copyText(btn){
     const w=window.open('','_blank');
     w.document.write('<pre style="font-family:monospace;font-size:13px;padding:20px">'+out.replace(/</g,'&lt;')+'</pre>');
   });
+}
+
+// ─── Export: draw.io ──────────────────────────────────────────────────────
+function exportDrawio(){
+  const NW_D=160, NH_D=40, GAP_X=20, GAP_Y=60;
+  let cellId=2;
+  const cells=[];
+  const edges=[];
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function collectNodes(d,depth,sibIdx,parentId,sibCount){
+    const id=cellId++;
+    const ann=ANN[nodePath(d)];
+    const teams=TEAMS[nodePath(d)]||[];
+    const c=getColor(d);
+    let label=d.data.name;
+    if(ann&&d.depth>0){
+      const pfx=ann==='done'?'✓ ':ann==='planned'?'◑ ':ann==='risk'?'⚠ ':ann==='gap'?'? ':ann==='na'?'⊘ ':'↕ ';
+      label=pfx+label;
+    }
+    if(teams.length)label+=' ['+teams.join(', ')+']';
+    const allAtDepth=[];
+    function countAtDepth(n,curD){
+      if(curD===depth)allAtDepth.push(n);
+      [...(n.children||[]),...(n._children||[])].forEach(ch=>countAtDepth(ch,curD+1));
+    }
+    countAtDepth(ROOT,0);
+    const totalW=(allAtDepth.length)*(NW_D+GAP_X);
+    const globalIdx=allAtDepth.indexOf(d);
+    const x=globalIdx>=0?globalIdx*(NW_D+GAP_X)+(totalW>0?(totalW-allAtDepth.length*(NW_D+GAP_X))/2:0):sibIdx*(NW_D+GAP_X);
+    const y=depth*(NH_D+GAP_Y);
+    const rounded=d.data.type==='root'||d.data.type==='pillar'?'1':'0';
+    const fw=d.data.type==='root'||d.data.type==='pillar'?'1':'0';
+    const style=`shape=rectangle;whiteSpace=wrap;html=1;rounded=${rounded};fillColor=${c.f};strokeColor=${c.s};fontColor=${c.t};fontSize=11;fontStyle=${fw};`;
+    cells.push(`<mxCell id="${id}" value="${esc(label)}" style="${esc(style)}" vertex="1" parent="1"><mxGeometry x="${x}" y="${y}" width="${NW_D}" height="${NH_D}" as="geometry"/></mxCell>`);
+    if(parentId!==null){
+      const eid=cellId++;
+      edges.push(`<mxCell id="${eid}" edge="1" source="${parentId}" target="${id}" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;html=1;" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>`);
+    }
+    const kids=[...(d.children||[]),...(d._children||[])];
+    kids.forEach((ch,i)=>collectNodes(ch,depth+1,i,id,kids.length));
+  }
+  collectNodes(ROOT,0,0,null,1);
+  const xml=`<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" type="device">
+<diagram id="oma" name="OMA Assessment">
+<mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="4000" pageHeight="3000">
+<root>
+<mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+${cells.join('\n')}
+${edges.join('\n')}
+</root>
+</mxGraphModel>
+</diagram>
+</mxfile>`;
+  dlFile('aap-assessment.drawio',xml,'application/xml');
+}
+
+// ─── Export: Miro CSV ─────────────────────────────────────────────────────
+function exportMiroCSV(){
+  const rows=getSummaryRows();
+  const csvRows=[['Title','Description','Status','Level','Team','Pillar','Group']];
+  rows.forEach(r=>{
+    if(r.dtype==='pillar'||r.dtype==='group')return;
+    const guide=GUIDE[r.name];
+    const desc=guide?guide.desc:'';
+    csvRows.push([r.name,desc,annLabel(r.ann),r.level,r.team||'',r.pillar,r.group]);
+  });
+  const csv=csvRows.map(row=>row.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  dlFile('aap-miro-import.csv',csv,'text/csv;charset=utf-8;');
 }
 
 // ─── Tooltip ──────────────────────────────────────────────────────────────
@@ -1226,9 +1557,16 @@ function hideTooltip(){TT.classList.remove('show');}
 function handleClick(d){
   if(d.depth===0)return;
   const key=nodePath(d);
-  if(MODE==='nav'){if(d.children||d._children){toggle(d);draw();}}
-  else if(MODE==='clear'){delete ANN[key];updateStatus();saveState();refreshPanels();draw();}
-  else{ANN[key]=MODE;updateStatus();saveState();refreshPanels();draw();}
+  if(MODE==='nav'){
+    if(d.children||d._children){toggle(d);draw();}
+    selectNode(d);
+  } else if(MODE==='clear'){
+    delete ANN[key];updateStatus();saveState();refreshPanels();
+    selectNode(d);
+  } else {
+    ANN[key]=MODE;updateStatus();saveState();refreshPanels();
+    selectNode(d);
+  }
 }
 
 // ─── Draw ─────────────────────────────────────────────────────────────────
@@ -1255,8 +1593,9 @@ function draw(){
     const hasGuide=!!(GUIDE[d.data.name]||(d.data.custom&&d.data.desc));
     const nx=d.x+ox-NW/2,ny=d.y+oy-NH/2;
     const cur=d.depth===0?'default':MODE==='nav'?(canExpand?'pointer':'default'):'pointer';
-    const ng=G.append('g').attr('class','nd').datum(d)
-      .attr('transform',`translate(${nx},${ny})`).style('cursor',cur)
+    const isSel=selectedNode&&nodePath(d)===nodePath(selectedNode);
+    const ng=G.append('g').attr('class','nd'+(isSel?' nd-selected':'')).datum(d)
+      .attr('transform',`translate(${nx},${ny})`).style('cursor',d.depth===0?'default':'pointer')
       .on('click',()=>handleClick(d))
       .on('mousemove',e=>{
         if(!hasGuide){hideTooltip();return;}
@@ -1269,6 +1608,10 @@ function draw(){
     if(isAnn){
       ng.append('rect').attr('x',-2).attr('y',-2).attr('width',NW+4).attr('height',NH+4).attr('rx',7)
         .attr('fill','none').attr('stroke',c.s).attr('stroke-width',2).attr('opacity',0.35).attr('pointer-events','none');
+    }
+    if(isSel){
+      ng.append('rect').attr('x',-4).attr('y',-4).attr('width',NW+8).attr('height',NH+8).attr('rx',8)
+        .attr('fill','none').attr('stroke','#0066CC').attr('stroke-width',2).attr('stroke-dasharray','5,3').attr('pointer-events','none');
     }
     // Custom topic: dashed border
     const sw=d.data.type==='root'?2:d.data.type==='pillar'?1.5:isAnn?1.5:0.75;
@@ -1309,6 +1652,26 @@ function draw(){
       ng.append('rect').attr('x',NW-18).attr('y',2).attr('width',16).attr('height',NH-4).attr('rx',3)
         .attr('fill','transparent').style('cursor','pointer')
         .on('click',event=>{event.stopPropagation();toggle(d);draw();});
+    }
+    const nodeKey = nodePath(d);
+    const nodeTeams = TEAMS[nodeKey] || [];
+    let badgeY = NH + 10;
+    if (MAPPED[nodeKey] && d.depth > 0) {
+      ng.append('text').attr('x', NW/2).attr('y', badgeY).attr('text-anchor', 'middle')
+        .attr('font-size', 8).attr('font-weight', 600).attr('fill', '#6753AC')
+        .attr('pointer-events', 'none').text('⑂ mapped');
+      badgeY += 10;
+    }
+    if (nodeTeams.length && d.depth > 0) {
+      ng.append('text').attr('x', NW/2).attr('y', badgeY).attr('text-anchor', 'middle')
+        .attr('font-size', 8).attr('font-weight', 500).attr('fill', '#6753AC')
+        .attr('pointer-events', 'none').text(nodeTeams.join(', '));
+    }
+    if (TEAM_FILTER && d.depth > 0) {
+      const match = TEAM_FILTER === 'unassigned' ? !nodeTeams.length : nodeTeams.includes(TEAM_FILTER);
+      if (!match && d.data.type !== 'root' && d.data.type !== 'pillar') {
+        ng.attr('opacity', 0.25);
+      }
     }
   });
 }
@@ -1416,6 +1779,8 @@ document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
   if (e.key === 'Escape') {
     // Close any open modal first
+    if (selectedNode) { deselectNode(); return; }
+    if (document.getElementById('team-modal').classList.contains('show')) { closeTeamModal(); return; }
     if (document.getElementById('help-modal').classList.contains('show')) { closeHelp(); return; }
     if (document.getElementById('add-modal').classList.contains('show')) { closeAddModal(); return; }
     // Return to navigate mode
@@ -1496,7 +1861,7 @@ function landingStartNew() {
   const hasData = Object.keys(ANN).length > 0 || customNodes.length > 0;
   if (hasData) {
     if (!confirm('This will clear the current session annotations. Version history and custom topics will be kept. Continue?')) return;
-    ANN = {}; priorityOrder = [];
+    ANN = {}; priorityOrder = []; TEAMS = {};
     buildRoot(); updateStatus(); saveState(); refreshPanels(); draw();
   }
   dismissLanding();
@@ -1527,6 +1892,7 @@ document.getElementById('landing').addEventListener('drop', e => {
   draw();
   updateStatus();
   if(typeof updateModeIndicator === "function") updateModeIndicator();
+  refreshTeamFilter();
   buildLandingCards();
 })();
 
@@ -1543,14 +1909,19 @@ function handleFileDrop(file, fromLanding){
       if(p.exportedAs==='snapshot'){
         if(!confirm(`Load snapshot "${p.label}"? Your current annotations will be replaced.`))return;
         ANN=JSON.parse(JSON.stringify(p.ann||{}));
+        MAPPED=JSON.parse(JSON.stringify(p.mapped||{}));
         customNodes=JSON.parse(JSON.stringify(p.custom||[]));
         priorityOrder=p.priorityOrder||[];
-        if(!versions.find(v=>v.id===p.id)) versions.unshift({id:p.id,label:p.label,timestamp:p.timestamp,ann:p.ann,custom:p.custom,priorityOrder:p.priorityOrder});
+        TEAMS=JSON.parse(JSON.stringify(p.teams||{}));
+        if(p.teamList) p.teamList.forEach(t=>{if(!teamList.includes(t))teamList.push(t);});
+        teamList.sort((a,b)=>a.localeCompare(b));
+        if(!versions.find(v=>v.id===p.id)) versions.unshift({id:p.id,label:p.label,timestamp:p.timestamp,ann:p.ann,custom:p.custom,priorityOrder:p.priorityOrder,teams:p.teams,teamList:p.teamList});
       } else {
         if(!confirm('Load full session export? This will replace all current data including version history.'))return;
-        ANN=p.ANN||{};customNodes=p.customNodes||[];versions=p.versions||[];priorityOrder=p.priorityOrder||[];
+        ANN=p.ANN||{};MAPPED=p.MAPPED||{};customNodes=p.customNodes||[];versions=p.versions||[];priorityOrder=p.priorityOrder||[];
+        TEAMS=p.TEAMS||{};teamList=p.teamList||[];
       }
-      buildRoot();updateStatus();saveState();refreshPanels();draw();
+      buildRoot();updateStatus();saveState();refreshTeamFilter();refreshPanels();draw();
       if(fromLanding) dismissLanding();
     }catch(err){alert('Could not read the file. Make sure it is a valid AAP snapshot or session export.');}
   };
