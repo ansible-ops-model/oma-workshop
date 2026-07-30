@@ -275,8 +275,8 @@
         <div class="sb-row">
           <button class="tb-btn" onclick="window._rm.exportJSON()" title="Export as JSON">JSON</button>
           <button class="tb-btn" onclick="window._rm.exportPNG()" title="Export as PNG">PNG</button>
-          <button class="tb-btn" onclick="window._rm.exportDrawio()" title="Export as draw.io diagram">draw.io</button>
-          <button class="tb-btn" onclick="window._rm.exportMiroCSV()" title="Export as Miro-ready CSV">Miro CSV</button>
+          <button class="tb-btn" onclick="window._rm.exportDrawio()" title="Export as draw.io diagram (experimental)">draw.io <sup style="color:var(--accent);font-size:.55rem">β</sup></button>
+          <button class="tb-btn" onclick="window._rm.exportMiroCSV()" title="Export as Miro-ready CSV (experimental)">Miro CSV <sup style="color:var(--accent);font-size:.55rem">β</sup></button>
         </div>
       </div>
       <div class="sb-section">
